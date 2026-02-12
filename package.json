@@ -1,6 +1,6 @@
 {
   "name": "memoryrelay-mcp-server",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "MCP server for MemoryRelay - persistent memory for AI agents",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -43,13 +43,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Alteriom/ai-memory-service.git",
-    "directory": "mcp"
+    "url": "https://github.com/memoryrelay/mcp-server.git"
   },
   "bugs": {
-    "url": "https://github.com/Alteriom/ai-memory-service/issues"
+    "url": "https://github.com/memoryrelay/mcp-server/issues"
   },
-  "homepage": "https://github.com/Alteriom/ai-memory-service/tree/main/mcp#readme",
+  "homepage": "https://github.com/memoryrelay/mcp-server#readme",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
