@@ -1,0 +1,29 @@
+# Source files
+src/
+tests/
+*.test.ts
+*.spec.ts
+
+# Config files
+tsconfig.json
+vitest.config.ts
+.eslintrc.*
+.prettierrc.*
+
+# Documentation
+*.md
+!README.md
+
+# Development
+.git/
+.github/
+.vscode/
+.idea/
+
+# Environment
+.env*
+
+# Build artifacts
+*.tsbuildinfo
+coverage/
+.vitest/

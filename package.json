@@ -1,0 +1,70 @@
+{
+  "name": "memoryrelay-mcp-server",
+  "version": "0.1.4",
+  "description": "MCP server for MemoryRelay - persistent memory for AI agents",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "bin": {
+    "memoryrelay-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "docs"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts tests/integration.test.ts",
+    "test:server": "vitest run tests/server.test.ts",
+    "test:security": "vitest run tests/security.test.ts",
+    "test:all": "npm test && npm run test:integration",
+    "test:coverage": "vitest run --coverage",
+    "type-check": "tsc --noEmit",
+    "lint": "echo 'Lint not configured yet'",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "memory",
+    "ai",
+    "agent",
+    "openclaw",
+    "claude",
+    "persistent-memory",
+    "semantic-search",
+    "knowledge-graph"
+  ],
+  "author": "Alteriom",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Alteriom/ai-memory-service.git",
+    "directory": "mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/Alteriom/ai-memory-service/issues"
+  },
+  "homepage": "https://github.com/Alteriom/ai-memory-service/tree/main/mcp#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
