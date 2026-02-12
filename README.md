@@ -1,9 +1,9 @@
-# memoryrelay-mcp-server
+# @memoryrelay/mcp-server
 
 **MCP server for MemoryRelay** - Give your AI agents persistent memory across sessions.
 
 [![CI/CD](https://github.com/memoryrelay/mcp-server/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/memoryrelay/mcp-server/actions)
-[![npm version](https://badge.fury.io/js/memoryrelay-mcp-server.svg)](https://www.npmjs.com/package/memoryrelay-mcp-server)
+[![npm version](https://badge.fury.io/js/@memoryrelay%2Fmcp-server.svg)](https://www.npmjs.com/package/@memoryrelay/mcp-server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## 🚀 Features
@@ -24,19 +24,19 @@
 No installation needed - run directly:
 
 ```bash
-npx memoryrelay-mcp-server
+npx @memoryrelay/mcp-server
 ```
 
 ### Global Installation
 
 ```bash
-npm install -g memoryrelay-mcp-server
+npm install -g @memoryrelay/mcp-server
 ```
 
 ### Local Project Installation
 
 ```bash
-npm install memoryrelay-mcp-server
+npm install @memoryrelay/mcp-server
 ```
 
 ---
@@ -58,7 +58,7 @@ Edit `~/.openclaw/openclaw.json`:
   "mcpServers": {
     "memoryrelay": {
       "command": "npx",
-      "args": ["-y", "memoryrelay-mcp-server"],
+      "args": ["-y", "@memoryrelay/mcp-server"],
       "env": {
         "MEMORYRELAY_API_KEY": "mem_prod_xxxxx",
         "MEMORYRELAY_AGENT_ID": "iris"
@@ -77,7 +77,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
   "mcpServers": {
     "memoryrelay": {
       "command": "npx",
-      "args": ["-y", "memoryrelay-mcp-server"],
+      "args": ["-y", "@memoryrelay/mcp-server"],
       "env": {
         "MEMORYRELAY_API_KEY": "mem_prod_xxxxx"
       }
@@ -553,7 +553,7 @@ MIT License - see [LICENSE](../LICENSE) for details
 ## 🔗 Links
 
 - **Documentation**: [GitHub Repository](https://github.com/memoryrelay/mcp-server)
-- **npm Package**: [memoryrelay-mcp-server](https://www.npmjs.com/package/memoryrelay-mcp-server)
+- **npm Package**: [@memoryrelay/mcp-server](https://www.npmjs.com/package/@memoryrelay/mcp-server)
 - **MemoryRelay API**: [api.memoryrelay.net](https://api.memoryrelay.net)
 - **Model Context Protocol**: [modelcontextprotocol.io](https://modelcontextprotocol.io)
 - **OpenClaw**: [openclaw.org](https://openclaw.org)

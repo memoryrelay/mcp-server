@@ -10,10 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.6] - 2026-02-12
 
 ### Changed
+- **BREAKING**: Package name changed to `@memoryrelay/mcp-server` (scoped)
 - Updated all documentation links to memoryrelay organization
-- Fixed npm package name references (memoryrelay-mcp-server instead of @memoryrelay/mcp-server)
 - Updated author to "MemoryRelay Team"
 - Improved API key signup instructions
+- Binary name now `memoryrelay-mcp-server` (matches old flat package)
 
 ### Added
 - LICENSE file (MIT)
