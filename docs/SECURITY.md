@@ -367,8 +367,8 @@ If you discover a security vulnerability:
 
 Monitor for security updates:
 
-- **GitHub Releases**: https://github.com/Alteriom/ai-memory-service/releases
-- **npm Security Advisories**: `npm audit` in the `mcp/` directory
+- **GitHub Releases**: https://github.com/memoryrelay/mcp-server/releases
+- **npm Security Advisories**: `npm audit` in the project directory
 - **Dependencies**: Regularly run `npm update` and `npm audit fix`
 
 ### Known Limitations

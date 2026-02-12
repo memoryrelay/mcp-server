@@ -1,6 +1,6 @@
 {
   "name": "memoryrelay-mcp-server",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "MCP server for MemoryRelay - persistent memory for AI agents",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -39,7 +39,7 @@
     "semantic-search",
     "knowledge-graph"
   ],
-  "author": "Alteriom",
+  "author": "MemoryRelay Team",
   "license": "MIT",
   "repository": {
     "type": "git",

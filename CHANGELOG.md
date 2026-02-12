@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-02-12
+
+### Changed
+- Updated all documentation links to memoryrelay organization
+- Fixed npm package name references (memoryrelay-mcp-server instead of @memoryrelay/mcp-server)
+- Updated author to "MemoryRelay Team"
+- Improved API key signup instructions
+
+### Added
+- LICENSE file (MIT)
+- CI/CD workflow badge to README
+
 ## [0.1.5] - 2026-02-12
 
 ### Changed
@@ -28,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Input validation
 - Rate limiting support
 
-[Unreleased]: https://github.com/memoryrelay/mcp-server/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/memoryrelay/mcp-server/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/memoryrelay/mcp-server/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/memoryrelay/mcp-server/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/memoryrelay/mcp-server/releases/tag/v0.1.4

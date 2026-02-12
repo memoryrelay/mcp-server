@@ -1,8 +1,9 @@
-# @memoryrelay/mcp-server
+# memoryrelay-mcp-server
 
 **MCP server for MemoryRelay** - Give your AI agents persistent memory across sessions.
 
-[![npm version](https://badge.fury.io/js/@memoryrelay%2Fmcp-server.svg)](https://www.npmjs.com/package/@memoryrelay/mcp-server)
+[![CI/CD](https://github.com/memoryrelay/mcp-server/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/memoryrelay/mcp-server/actions)
+[![npm version](https://badge.fury.io/js/memoryrelay-mcp-server.svg)](https://www.npmjs.com/package/memoryrelay-mcp-server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## 🚀 Features
@@ -23,19 +24,19 @@
 No installation needed - run directly:
 
 ```bash
-npx @memoryrelay/mcp-server
+npx memoryrelay-mcp-server
 ```
 
 ### Global Installation
 
 ```bash
-npm install -g @memoryrelay/mcp-server
+npm install -g memoryrelay-mcp-server
 ```
 
 ### Local Project Installation
 
 ```bash
-npm install @memoryrelay/mcp-server
+npm install memoryrelay-mcp-server
 ```
 
 ---
@@ -44,7 +45,7 @@ npm install @memoryrelay/mcp-server
 
 ### 1. Get Your API Key
 
-Sign up at [memoryrelay.net](https://memoryrelay.net) to get your API key (format: `mem_prod_xxxxx`).
+Get your API key from the [MemoryRelay API](https://api.memoryrelay.net) - contact support for beta access (format: `mem_prod_xxxxx`).
 
 ### 2. Configure Your MCP Client
 
@@ -57,7 +58,7 @@ Edit `~/.openclaw/openclaw.json`:
   "mcpServers": {
     "memoryrelay": {
       "command": "npx",
-      "args": ["-y", "@memoryrelay/mcp-server"],
+      "args": ["-y", "memoryrelay-mcp-server"],
       "env": {
         "MEMORYRELAY_API_KEY": "mem_prod_xxxxx",
         "MEMORYRELAY_AGENT_ID": "iris"
@@ -76,7 +77,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
   "mcpServers": {
     "memoryrelay": {
       "command": "npx",
-      "args": ["-y", "@memoryrelay/mcp-server"],
+      "args": ["-y", "memoryrelay-mcp-server"],
       "env": {
         "MEMORYRELAY_API_KEY": "mem_prod_xxxxx"
       }
@@ -356,7 +357,7 @@ For detailed security information, see [SECURITY.md](./docs/SECURITY.md).
 
 ```bash
 # Clone the repository
-git clone https://github.com/Alteriom/ai-memory-service.git
+git clone https://github.com/memoryrelay/mcp-server.git
 cd ai-memory-service/mcp
 
 # Install dependencies
@@ -507,9 +508,9 @@ Debug logs go to stderr and include:
 
 ### Getting Help
 
-- 📖 [Full Documentation](https://github.com/Alteriom/ai-memory-service/tree/main/mcp)
-- 🐛 [Report Issues](https://github.com/Alteriom/ai-memory-service/issues)
-- 💬 [Discussions](https://github.com/Alteriom/ai-memory-service/discussions)
+- 📖 [Full Documentation](https://github.com/memoryrelay/mcp-server/tree/main/mcp)
+- 🐛 [Report Issues](https://github.com/memoryrelay/mcp-server/issues)
+- 💬 [Discussions](https://github.com/memoryrelay/mcp-server/discussions)
 - 🔒 [Security Policy](./docs/SECURITY.md)
 
 ---
@@ -551,8 +552,8 @@ MIT License - see [LICENSE](../LICENSE) for details
 
 ## 🔗 Links
 
-- **Documentation**: [GitHub Repository](https://github.com/Alteriom/ai-memory-service)
-- **npm Package**: [@memoryrelay/mcp-server](https://www.npmjs.com/package/@memoryrelay/mcp-server)
+- **Documentation**: [GitHub Repository](https://github.com/memoryrelay/mcp-server)
+- **npm Package**: [memoryrelay-mcp-server](https://www.npmjs.com/package/memoryrelay-mcp-server)
 - **MemoryRelay API**: [api.memoryrelay.net](https://api.memoryrelay.net)
 - **Model Context Protocol**: [modelcontextprotocol.io](https://modelcontextprotocol.io)
 - **OpenClaw**: [openclaw.org](https://openclaw.org)
@@ -579,4 +580,4 @@ Contributions welcome! Please see [CONTRIBUTING.md](../CONTRIBUTING.md) for guid
 
 ---
 
-Made with ❤️ by [Alteriom](https://github.com/Alteriom)
+Made with ❤️ by the [MemoryRelay Team](https://github.com/memoryrelay)
