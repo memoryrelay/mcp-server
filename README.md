@@ -45,7 +45,7 @@ npm install @memoryrelay/mcp-server
 
 ### 1. Get Your API Key
 
-Get your API key from the [MemoryRelay API](https://api.memoryrelay.net) - contact support for beta access (format: `mem_prod_xxxxx`).
+Sign up at [memoryrelay.ai](https://memoryrelay.ai) to get your API key (format: `mem_prod_xxxxx`).
 
 ### 2. Configure Your MCP Client
 
@@ -554,7 +554,8 @@ MIT License - see [LICENSE](../LICENSE) for details
 
 - **Documentation**: [GitHub Repository](https://github.com/memoryrelay/mcp-server)
 - **npm Package**: [@memoryrelay/mcp-server](https://www.npmjs.com/package/@memoryrelay/mcp-server)
-- **MemoryRelay API**: [api.memoryrelay.net](https://api.memoryrelay.net)
+- **Website**: [memoryrelay.ai](https://memoryrelay.ai)
+- **API**: [api.memoryrelay.net](https://api.memoryrelay.net)
 - **Model Context Protocol**: [modelcontextprotocol.io](https://modelcontextprotocol.io)
 - **OpenClaw**: [openclaw.org](https://openclaw.org)
 

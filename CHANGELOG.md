@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Updated signup URL to memoryrelay.ai (correct website)
+- Clarified Links section with separate Website and API URLs
+
 ## [0.1.6] - 2026-02-12
 
 ### Changed
