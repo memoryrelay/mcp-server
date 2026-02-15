@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-02-15
+
+### Added
+- Windows-specific Claude Desktop setup instructions using global install + `node` command
+- Windows `npx` scoped package troubleshooting guide
+
+### Fixed
+- Project structure in README now shows correct `mcp-server/` root (was `mcp/`)
+- LICENSE link in README (was `../LICENSE`, now `./LICENSE`)
+- CONTRIBUTING link replaced with direct GitHub link (file did not exist)
+- "Getting Help" documentation link fixed (was pointing to non-existent `mcp` subdirectory)
+- Added missing `tsup.config.ts`, `CHANGELOG.md`, and `LICENSE` to project structure diagram
+
 ## [0.1.8] - 2026-02-15
 
 ### Added
@@ -60,7 +73,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Input validation
 - Rate limiting support
 
-[Unreleased]: https://github.com/memoryrelay/mcp-server/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/memoryrelay/mcp-server/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/memoryrelay/mcp-server/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/memoryrelay/mcp-server/compare/v0.1.6...v0.1.8
 [0.1.6]: https://github.com/memoryrelay/mcp-server/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/memoryrelay/mcp-server/compare/v0.1.4...v0.1.5
