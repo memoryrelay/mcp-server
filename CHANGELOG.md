@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-02-15
+
+### Added
+- MCP resources: `memory:///recent` and `memory:///{id}` resource templates for direct memory access
+- MCP prompts: `store_memory`, `recall_memories`, `summarize_memories` prompt templates
+- `OPENCLAW_AGENT_NAME` environment variable support for agent ID detection
+- Additional `mcp-server` bin entry for proper `npx @memoryrelay/mcp-server` execution
+
+### Fixed
+- Server version now dynamically read from package.json at build time (was hardcoded as 0.1.0)
+- Error help URL now points to correct repository (memoryrelay/mcp-server)
+- GitHub Release install commands now use scoped package name
+- All TypeScript strict mode errors resolved (14 errors in server.ts and client.ts)
+- Clone path in README development section
+
 ### Changed
 - Updated signup URL to memoryrelay.ai (correct website)
 - Clarified Links section with separate Website and API URLs
@@ -45,7 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Input validation
 - Rate limiting support
 
-[Unreleased]: https://github.com/memoryrelay/mcp-server/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/memoryrelay/mcp-server/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/memoryrelay/mcp-server/compare/v0.1.6...v0.1.8
 [0.1.6]: https://github.com/memoryrelay/mcp-server/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/memoryrelay/mcp-server/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/memoryrelay/mcp-server/releases/tag/v0.1.4

@@ -7,11 +7,18 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  ListResourcesRequestSchema,
+  ListResourceTemplatesRequestSchema,
+  ReadResourceRequestSchema,
+  ListPromptsRequestSchema,
+  GetPromptRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { MemoryRelayClient } from './client.js';
 import { getLogger } from './logger.js';
 import type { ClientConfig } from './types.js';
+
+declare const __VERSION__: string;
 
 /**
  * HTML-encode string to prevent XSS
@@ -49,23 +56,27 @@ export class MemoryRelayMCPServer {
     this.server = new Server(
       {
         name: '@memoryrelay/mcp-server',
-        version: '0.1.0',
+        version: __VERSION__,
       },
       {
         capabilities: {
           tools: {},
+          resources: {},
+          prompts: {},
         },
       }
     );
 
-    this.setupHandlers();
+    this.setupToolHandlers();
+    this.setupResourceHandlers();
+    this.setupPromptHandlers();
     this.logger.info('MCP server initialized');
   }
 
   /**
-   * Setup MCP protocol handlers
+   * Setup MCP tool handlers
    */
-  private setupHandlers(): void {
+  private setupToolHandlers(): void {
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: [
@@ -251,7 +262,7 @@ export class MemoryRelayMCPServer {
 
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      const { name, arguments: args } = request.params;
+      const { name, arguments: args = {} } = request.params;
 
       this.logger.debug(`Tool called: ${name}`, args);
 
@@ -310,7 +321,7 @@ export class MemoryRelayMCPServer {
           case 'memory_get': {
             const id = args.id as string;
             validateUuid(id, 'memory_id');
-            
+
             const memory = await this.client.getMemory(id);
             return {
               content: [
@@ -325,7 +336,7 @@ export class MemoryRelayMCPServer {
           case 'memory_update': {
             const id = args.id as string;
             validateUuid(id, 'memory_id');
-            
+
             const memory = await this.client.updateMemory(
               id,
               args.content as string,
@@ -344,7 +355,7 @@ export class MemoryRelayMCPServer {
           case 'memory_delete': {
             const id = args.id as string;
             validateUuid(id, 'memory_id');
-            
+
             await this.client.deleteMemory(id);
             return {
               content: [
@@ -473,6 +484,179 @@ export class MemoryRelayMCPServer {
           ],
           isError: true,
         };
+      }
+    });
+  }
+
+  /**
+   * Setup MCP resource handlers
+   */
+  private setupResourceHandlers(): void {
+    // List static resources
+    this.server.setRequestHandler(ListResourcesRequestSchema, async () => ({
+      resources: [
+        {
+          uri: 'memory:///recent',
+          name: 'Recent Memories',
+          description: 'The 20 most recent memories stored in MemoryRelay',
+          mimeType: 'application/json',
+        },
+      ],
+    }));
+
+    // List resource templates for dynamic access
+    this.server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => ({
+      resourceTemplates: [
+        {
+          uriTemplate: 'memory:///{id}',
+          name: 'Memory by ID',
+          description: 'Retrieve a specific memory by its UUID',
+          mimeType: 'application/json',
+        },
+      ],
+    }));
+
+    // Read a resource
+    this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+      const { uri } = request.params;
+
+      try {
+        if (uri === 'memory:///recent') {
+          const response = await this.client.listMemories(20, 0);
+          return {
+            contents: [
+              {
+                uri,
+                mimeType: 'application/json',
+                text: JSON.stringify(response, null, 2),
+              },
+            ],
+          };
+        }
+
+        // Match memory:///{uuid} pattern
+        const match = uri.match(/^memory:\/\/\/([0-9a-f-]{36})$/);
+        if (match) {
+          const id = match[1];
+          validateUuid(id, 'memory_id');
+          const memory = await this.client.getMemory(id);
+          return {
+            contents: [
+              {
+                uri,
+                mimeType: 'application/json',
+                text: JSON.stringify(memory, null, 2),
+              },
+            ],
+          };
+        }
+
+        throw new Error(`Unknown resource: ${uri}`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        this.logger.error(`Resource read failed: ${uri}`, { error: message });
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Setup MCP prompt handlers
+   */
+  private setupPromptHandlers(): void {
+    // List available prompts
+    this.server.setRequestHandler(ListPromptsRequestSchema, async () => ({
+      prompts: [
+        {
+          name: 'store_memory',
+          description: 'Store information as a persistent memory with appropriate metadata',
+          arguments: [
+            {
+              name: 'information',
+              description: 'The information to remember',
+              required: true,
+            },
+            {
+              name: 'category',
+              description: 'Category for the memory (e.g., preference, fact, instruction, context)',
+              required: false,
+            },
+          ],
+        },
+        {
+          name: 'recall_memories',
+          description: 'Search for and recall relevant memories about a topic',
+          arguments: [
+            {
+              name: 'topic',
+              description: 'The topic or question to search memories for',
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'summarize_memories',
+          description: 'List and summarize all recent memories for context',
+          arguments: [],
+        },
+      ],
+    }));
+
+    // Get a specific prompt
+    this.server.setRequestHandler(GetPromptRequestSchema, async (request) => {
+      const { name, arguments: args } = request.params;
+
+      switch (name) {
+        case 'store_memory': {
+          const information = args?.information ?? '';
+          const category = args?.category ?? '';
+          const metadataInstruction = category
+            ? ` Attach metadata with category "${category}".`
+            : ' Attach appropriate metadata with a category tag.';
+          return {
+            messages: [
+              {
+                role: 'user' as const,
+                content: {
+                  type: 'text' as const,
+                  text: `Please store the following information as a persistent memory using the memory_store tool.${metadataInstruction}\n\nInformation to remember:\n${information}`,
+                },
+              },
+            ],
+          };
+        }
+
+        case 'recall_memories': {
+          const topic = args?.topic ?? '';
+          return {
+            messages: [
+              {
+                role: 'user' as const,
+                content: {
+                  type: 'text' as const,
+                  text: `Search my memories for information related to: "${topic}"\n\nUse the memory_search tool to find relevant memories, then summarize what you found. If nothing relevant is found, let me know.`,
+                },
+              },
+            ],
+          };
+        }
+
+        case 'summarize_memories': {
+          return {
+            messages: [
+              {
+                role: 'user' as const,
+                content: {
+                  type: 'text' as const,
+                  text: 'List my recent memories using the memory_list tool and provide a brief summary of what has been remembered. Group them by topic or category if possible.',
+                },
+              },
+            ],
+          };
+        }
+
+        default:
+          throw new Error(`Unknown prompt: ${name}`);
       }
     });
   }

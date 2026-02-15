@@ -116,7 +116,7 @@ export class MemoryRelayClient {
             throw new Error(`Rate limited: 429 - Retry after ${waitMs}ms`);
           }
 
-          const errorData = await response.json().catch(() => ({}));
+          const errorData = await response.json().catch(() => ({})) as Record<string, unknown>;
           const errorMsg = `API request failed: ${response.status} ${response.statusText}` +
             (errorData.message ? ` - ${errorData.message}` : '');
           

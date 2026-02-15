@@ -89,9 +89,9 @@ jobs:
           
           ## Installation
           ```bash
-          npm install memoryrelay-mcp-server@${{ steps.version.outputs.VERSION }}
+          npm install @memoryrelay/mcp-server@${{ steps.version.outputs.VERSION }}
           # or
-          npx memoryrelay-mcp-server
+          npx -y @memoryrelay/mcp-server
           ```
         draft: false
         prerelease: false
