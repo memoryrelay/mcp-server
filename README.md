@@ -70,9 +70,9 @@ Edit `~/.openclaw/openclaw.json`:
 }
 ```
 
-#### For Claude Desktop
+#### For Claude Desktop (macOS)
 
-Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
@@ -87,6 +87,34 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
   }
 }
 ```
+
+#### For Claude Desktop (Windows)
+
+On Windows, `npx` with scoped packages can fail to resolve the bin entry. Install globally first, then use `node` directly.
+
+**Step 1:** Install the package globally:
+
+```bash
+npm install -g @memoryrelay/mcp-server
+```
+
+**Step 2:** Edit `%APPDATA%\Claude\claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "memoryrelay": {
+      "command": "node",
+      "args": ["%APPDATA%\\npm\\node_modules\\@memoryrelay\\mcp-server\\dist\\index.js"],
+      "env": {
+        "MEMORYRELAY_API_KEY": "mem_prod_xxxxx"
+      }
+    }
+  }
+}
+```
+
+> **Note:** Replace `%APPDATA%` with your actual path (e.g., `C:\\Users\\YourName\\AppData\\Roaming`). You can find it by running `echo %APPDATA%` in Command Prompt.
 
 ### 3. Restart Your Client
 
@@ -444,7 +472,7 @@ npm run type-check
 ### Project Structure
 
 ```
-mcp/
+mcp-server/
 ├── src/
 │   ├── index.ts          # Entry point
 │   ├── server.ts         # MCP server implementation
@@ -462,7 +490,10 @@ mcp/
 │   └── SECURITY.md       # Security documentation
 ├── package.json
 ├── tsconfig.json
+├── tsup.config.ts
 ├── vitest.config.ts
+├── CHANGELOG.md
+├── LICENSE
 └── README.md
 ```
 
@@ -506,6 +537,21 @@ mcp/
    }
    ```
 4. Check firewall/proxy settings
+
+### Windows: `npx` Fails with Scoped Package
+
+**Problem:** `'memoryrelay-mcp-server' is not recognized` when using `npx` on Windows
+
+**Solutions:**
+1. Install globally instead of using `npx`:
+   ```bash
+   npm install -g @memoryrelay/mcp-server
+   ```
+2. Use `node` directly in your Claude Desktop config (see [Windows setup](#for-claude-desktop-windows) above)
+3. Verify the global install path:
+   ```bash
+   npm root -g
+   ```
 
 ### Tools Not Showing Up
 
@@ -557,7 +603,7 @@ Debug logs go to stderr and include:
 
 ### Getting Help
 
-- 📖 [Full Documentation](https://github.com/memoryrelay/mcp-server/tree/main/mcp)
+- 📖 [Full Documentation](https://github.com/memoryrelay/mcp-server#readme)
 - 🐛 [Report Issues](https://github.com/memoryrelay/mcp-server/issues)
 - 💬 [Discussions](https://github.com/memoryrelay/mcp-server/discussions)
 - 🔒 [Security Policy](./docs/SECURITY.md)
@@ -595,7 +641,7 @@ npm run test:security  # Security tests only
 
 ## 📄 License
 
-MIT License - see [LICENSE](../LICENSE) for details
+MIT License - see [LICENSE](./LICENSE) for details
 
 ---
 
@@ -612,11 +658,17 @@ MIT License - see [LICENSE](../LICENSE) for details
 
 ## 🙏 Contributing
 
-Contributions welcome! Please see [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
+Contributions welcome! Please open an issue or pull request on [GitHub](https://github.com/memoryrelay/mcp-server).
 
 ---
 
 ## 📝 Changelog
+
+### v0.1.9 (2026-02-15)
+
+- Add Windows-specific Claude Desktop setup instructions (global install + `node` command)
+- Add Windows `npx` scoped package troubleshooting guide
+- Fix project structure diagram, broken links, and missing files in README
 
 ### v0.1.8 (2026-02-15)
 
