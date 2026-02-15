@@ -158,7 +158,7 @@ export class MemoryRelayClient {
   async storeMemory(content: string, metadata?: Record<string, string>): Promise<Memory> {
     this.validateContentSize(content);
     
-    return this.request<Memory>('POST', '/v1/memories/memories', {
+    return this.request<Memory>('POST', '/v1/memories', {
       content,
       metadata,
       agent_id: this.config.agentId,
@@ -177,7 +177,7 @@ export class MemoryRelayClient {
     
     const response = await this.request<{ data: SearchResult[] }>(
       'POST',
-      '/v1/memories/memories/search',
+      '/v1/memories/search',
       { query, limit, threshold, agent_id: this.config.agentId }
     );
     return response.data;
@@ -189,7 +189,7 @@ export class MemoryRelayClient {
   async listMemories(limit: number = 20, offset: number = 0): Promise<ListResponse<Memory>> {
     return this.request<ListResponse<Memory>>(
       'GET',
-      `/v1/memories/memories?limit=${limit}&offset=${offset}`
+      `/v1/memories?limit=${limit}&offset=${offset}`
     );
   }
 
@@ -197,7 +197,7 @@ export class MemoryRelayClient {
    * Get a specific memory by ID
    */
   async getMemory(id: string): Promise<Memory> {
-    return this.request<Memory>('GET', `/v1/memories/memories/${id}`);
+    return this.request<Memory>('GET', `/v1/memories/${id}`);
   }
 
   /**
@@ -210,7 +210,7 @@ export class MemoryRelayClient {
   ): Promise<Memory> {
     this.validateContentSize(content);
     
-    return this.request<Memory>('PATCH', `/v1/memories/memories/${id}`, {
+    return this.request<Memory>('PATCH', `/v1/memories/${id}`, {
       content,
       metadata,
     });
@@ -220,7 +220,7 @@ export class MemoryRelayClient {
    * Delete a memory
    */
   async deleteMemory(id: string): Promise<void> {
-    await this.request<void>('DELETE', `/v1/memories/memories/${id}`);
+    await this.request<void>('DELETE', `/v1/memories/${id}`);
   }
 
   /**
@@ -285,7 +285,7 @@ export class MemoryRelayClient {
   async healthCheck(): Promise<{ status: string; message: string }> {
     try {
       // Simple GET request to check API is reachable
-      await this.request<{ status: string }>('GET', '/v1/health');
+      await this.request<{ status: string }>('GET', '/health');
       return {
         status: 'healthy',
         message: 'API connection successful',
