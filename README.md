@@ -11,6 +11,8 @@
 - **Persistent Memory**: Store and retrieve memories across conversations
 - **Semantic Search**: Find relevant memories using natural language queries
 - **Entity Management**: Create and link entities (people, projects, concepts) for knowledge graphs
+- **MCP Resources**: Expose memories as readable resources for richer context injection
+- **MCP Prompts**: Built-in prompt templates for common memory workflows
 - **Security Hardened**: API key masking, input validation, sanitized errors
 - **MCP Compliant**: Works with Claude Desktop, OpenClaw, and any MCP client
 - **Fully Tested**: 102+ test cases covering all functionality
@@ -318,6 +320,53 @@ Check API connectivity and server health.
 
 ---
 
+## 📚 Resources
+
+The server exposes memories as MCP resources, allowing clients to read memory data directly.
+
+### Static Resources
+
+#### `memory:///recent`
+
+Returns the 20 most recent memories as a JSON resource.
+
+### Resource Templates
+
+#### `memory:///{id}`
+
+Retrieve a specific memory by its UUID. Replace `{id}` with a valid memory UUID.
+
+**Example URI:** `memory:///550e8400-e29b-41d4-a716-446655440000`
+
+---
+
+## 💬 Prompts
+
+The server provides prompt templates that guide the AI through common memory workflows.
+
+### `store_memory`
+
+Store information as a persistent memory with appropriate metadata.
+
+**Arguments:**
+- `information` (string, required) - The information to remember
+- `category` (string, optional) - Category tag (e.g., preference, fact, instruction)
+
+### `recall_memories`
+
+Search for and recall relevant memories about a topic.
+
+**Arguments:**
+- `topic` (string, required) - The topic or question to search memories for
+
+### `summarize_memories`
+
+List and summarize all recent memories for context.
+
+**Arguments:** None
+
+---
+
 ## 🔒 Security
 
 This MCP server is designed with security best practices:
@@ -358,7 +407,7 @@ For detailed security information, see [SECURITY.md](./docs/SECURITY.md).
 ```bash
 # Clone the repository
 git clone https://github.com/memoryrelay/mcp-server.git
-cd ai-memory-service/mcp
+cd mcp-server
 
 # Install dependencies
 npm install
@@ -568,6 +617,17 @@ Contributions welcome! Please see [CONTRIBUTING.md](../CONTRIBUTING.md) for guid
 ---
 
 ## 📝 Changelog
+
+### v0.1.8 (2026-02-15)
+
+- Add MCP resources: `memory:///recent` and `memory:///{id}` for direct memory access
+- Add MCP prompts: `store_memory`, `recall_memories`, `summarize_memories` templates
+- Fix `npx @memoryrelay/mcp-server` execution for scoped packages
+- Fix server version reporting (was hardcoded as 0.1.0)
+- Implement `OPENCLAW_AGENT_NAME` environment variable support
+- Fix error help URL to point to current repository
+- Fix GitHub Release install commands to use scoped package name
+- Fix TypeScript strict mode errors
 
 ### v0.1.0 (2026-02-12)
 

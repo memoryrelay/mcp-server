@@ -53,7 +53,7 @@ async function main() {
       // Print user-friendly error to stderr
       console.error('\n❌ Failed to start MemoryRelay MCP server\n');
       console.error(error.message);
-      console.error('\nFor help, see: https://github.com/Alteriom/ai-memory-service/tree/main/mcp\n');
+      console.error('\nFor help, see: https://github.com/memoryrelay/mcp-server#troubleshooting\n');
     } else {
       logger.error('Fatal error:', { error });
       console.error('\n❌ An unexpected error occurred\n');

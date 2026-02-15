@@ -66,6 +66,11 @@ export function getAgentId(config: Config): string {
     return config.agentId;
   }
 
+  // Check OpenClaw agent name
+  if (process.env.OPENCLAW_AGENT_NAME) {
+    return process.env.OPENCLAW_AGENT_NAME;
+  }
+
   // Auto-generate from hostname
   const hostname = process.env.HOSTNAME || 'unknown';
   return `agent-${hostname.slice(0, 8)}`;
