@@ -190,7 +190,7 @@ describe('MemoryRelayClient', () => {
 
       expect(result).toEqual(mockMemory);
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.memoryrelay.net/v1/memories/memories',
+        'https://api.memoryrelay.net/v1/memories',
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
@@ -256,7 +256,7 @@ describe('MemoryRelayClient', () => {
       await client.deleteMemory('mem-123');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.memoryrelay.net/v1/memories/memories/mem-123',
+        'https://api.memoryrelay.net/v1/memories/mem-123',
         expect.objectContaining({
           method: 'DELETE',
         })

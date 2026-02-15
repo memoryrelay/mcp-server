@@ -77,7 +77,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "memoryrelay": {
+    "MemoryRelay": {
       "command": "npx",
       "args": ["-y", "@memoryrelay/mcp-server"],
       "env": {
@@ -103,7 +103,7 @@ npm install -g @memoryrelay/mcp-server
 ```json
 {
   "mcpServers": {
-    "memoryrelay": {
+    "MemoryRelay": {
       "command": "node",
       "args": ["%APPDATA%\\npm\\node_modules\\@memoryrelay\\mcp-server\\dist\\index.js"],
       "env": {
@@ -663,6 +663,12 @@ Contributions welcome! Please open an issue or pull request on [GitHub](https://
 ---
 
 ## 📝 Changelog
+
+### v0.2.0 (2026-02-15)
+
+- **CRITICAL FIX**: All memory API endpoints now use correct paths (store, search, list, get, update, delete all work)
+- Fix health check endpoint path
+- Config examples now use `MemoryRelay` display name for Claude Desktop
 
 ### v0.1.9 (2026-02-15)
 

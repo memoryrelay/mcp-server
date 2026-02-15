@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-02-15
+
+### Fixed
+- **CRITICAL**: All memory API endpoints were using wrong paths (`/v1/memories/memories` instead of `/v1/memories`), causing all memory operations (store, search, list, get, update, delete) to fail with 404/422 errors
+- Health check endpoint path corrected (`/v1/health` to `/health`)
+- Claude Desktop config examples now use `MemoryRelay` display name (was `memoryrelay`)
+
 ## [0.1.9] - 2026-02-15
 
 ### Added
@@ -73,7 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Input validation
 - Rate limiting support
 
-[Unreleased]: https://github.com/memoryrelay/mcp-server/compare/v0.1.9...HEAD
+[Unreleased]: https://github.com/memoryrelay/mcp-server/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/memoryrelay/mcp-server/compare/v0.1.9...v0.2.0
 [0.1.9]: https://github.com/memoryrelay/mcp-server/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/memoryrelay/mcp-server/compare/v0.1.6...v0.1.8
 [0.1.6]: https://github.com/memoryrelay/mcp-server/compare/v0.1.5...v0.1.6
