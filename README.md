@@ -10,12 +10,10 @@
 
 - **Persistent Memory**: Store and retrieve memories across conversations
 - **Semantic Search**: Find relevant memories using natural language queries
-- **Entity Management**: Create and link entities (people, projects, concepts) for knowledge graphs
-- **MCP Resources**: Expose memories as readable resources for richer context injection
-- **MCP Prompts**: Built-in prompt templates for common memory workflows
+- **Batch Operations**: Create multiple memories in a single request for optimal performance
 - **Security Hardened**: API key masking, input validation, sanitized errors
 - **MCP Compliant**: Works with Claude Desktop, OpenClaw, and any MCP client
-- **Fully Tested**: 102+ test cases covering all functionality
+- **Fully Tested**: 169 test cases covering all functionality
 
 ---
 
@@ -52,6 +50,8 @@ Sign up at [memoryrelay.ai](https://memoryrelay.ai) to get your API key (format:
 ### 2. Configure Your MCP Client
 
 #### For OpenClaw
+
+> See [docs/OPENCLAW_GUIDE.md](docs/OPENCLAW_GUIDE.md) for a comprehensive setup guide.
 
 Edit `~/.openclaw/openclaw.json`:
 
@@ -140,6 +140,26 @@ Try asking:
 | `MEMORYRELAY_AGENT_ID` | No | Auto-detected | Agent identifier (auto-generated if not set) |
 | `MEMORYRELAY_TIMEOUT` | No | `30000` | Request timeout in milliseconds |
 | `MEMORYRELAY_LOG_LEVEL` | No | `info` | Logging level (`debug`, `info`, `warn`, `error`) |
+| `MEMORYRELAY_TOOLS` | No | `all` | Comma-separated tool groups to enable (see below) |
+
+### Tool Groups
+
+Control which tools are exposed via the `MEMORYRELAY_TOOLS` environment variable:
+
+| Group | Tools | Description |
+|-------|-------|-------------|
+| `core` | 16 tools | Memory CRUD, entities, agents, health |
+| `sessions` | 4 tools | Session lifecycle (start, end, recall, list) |
+| `decisions` | 4 tools | Decision recording and checking |
+| `patterns` | 4 tools | Pattern library (create, search, adopt, suggest) |
+| `projects` | 3 tools | Project registration and listing |
+| `relationships` | 6 tools | Project graph (add, deps, dependents, related, impact, shared patterns) |
+| `context` | 2 tools | Project context, memory promotion |
+
+Examples:
+- `MEMORYRELAY_TOOLS=all` (default) — all tools enabled
+- `MEMORYRELAY_TOOLS=core,sessions` — only core + session tools
+- `MEMORYRELAY_TOOLS=core,relationships,context` — core + graph tools
 
 ### Agent ID Detection
 
@@ -152,7 +172,7 @@ The server automatically detects your agent ID from:
 
 ## 🛠️ Available Tools
 
-The MCP server provides 9 tools for memory and entity management:
+The MCP server provides 39 tools organized into groups:
 
 ### Memory Management Tools
 
@@ -160,9 +180,11 @@ The MCP server provides 9 tools for memory and entity management:
 
 Store a new memory with optional metadata.
 
+> **Note**: The `agent_id` parameter is automatically injected from `MEMORYRELAY_AGENT_ID` environment variable. You don't need to include it in your request.
+
 **Parameters:**
-- `content` (string, required) - The memory content to store
-- `metadata` (object, optional) - Key-value metadata to attach
+- `content` (string, required) - The memory content to store (1-50,000 characters)
+- `metadata` (object, optional) - Key-value metadata to attach (max 10KB when serialized)
 
 **Example:**
 ```json
@@ -175,7 +197,9 @@ Store a new memory with optional metadata.
 }
 ```
 
-**Returns:** Memory object with `id`, `content`, `metadata`, `created_at`, `updated_at`
+**Returns:** Memory object with `id`, `content`, `agent_id`, `metadata`, `created_at`, `updated_at`
+
+**Rate Limit**: 30 requests per minute
 
 ---
 
@@ -243,10 +267,12 @@ Retrieve a specific memory by ID.
 
 Update an existing memory's content or metadata.
 
+> **Note**: Metadata updates are **merged** with existing metadata, not replaced. To remove a key, explicitly set it to `null`.
+
 **Parameters:**
 - `id` (string, required) - Memory UUID
-- `content` (string, required) - New content
-- `metadata` (object, optional) - Updated metadata (replaces existing)
+- `content` (string, required) - New content (1-50,000 characters)
+- `metadata` (object, optional) - Updated metadata (merged with existing, max 10KB)
 
 **Example:**
 ```json
@@ -282,55 +308,6 @@ Permanently delete a memory.
 
 ---
 
-### Entity Management Tools
-
-#### `entity_create`
-
-Create a named entity for the knowledge graph.
-
-**Parameters:**
-- `name` (string, required) - Entity name (1-200 characters)
-- `type` (enum, required) - One of: `person`, `place`, `organization`, `project`, `concept`, `other`
-- `metadata` (object, optional) - Key-value metadata
-
-**Example:**
-```json
-{
-  "name": "MemoryRelay Project",
-  "type": "project",
-  "metadata": {
-    "status": "active",
-    "started": "2026-01"
-  }
-}
-```
-
-**Returns:** Entity object with `id`, `name`, `type`, `metadata`, `created_at`
-
----
-
-#### `entity_link`
-
-Link an entity to a memory to establish relationships.
-
-**Parameters:**
-- `entity_id` (string, required) - Entity UUID
-- `memory_id` (string, required) - Memory UUID
-- `relationship` (string, optional, default: "mentioned_in") - Relationship type
-
-**Example:**
-```json
-{
-  "entity_id": "650e8400-e29b-41d4-a716-446655440001",
-  "memory_id": "550e8400-e29b-41d4-a716-446655440000",
-  "relationship": "relates_to"
-}
-```
-
-**Returns:** Success confirmation with link details
-
----
-
 ### Health Check Tool
 
 #### `memory_health`
@@ -348,53 +325,6 @@ Check API connectivity and server health.
 
 ---
 
-## 📚 Resources
-
-The server exposes memories as MCP resources, allowing clients to read memory data directly.
-
-### Static Resources
-
-#### `memory:///recent`
-
-Returns the 20 most recent memories as a JSON resource.
-
-### Resource Templates
-
-#### `memory:///{id}`
-
-Retrieve a specific memory by its UUID. Replace `{id}` with a valid memory UUID.
-
-**Example URI:** `memory:///550e8400-e29b-41d4-a716-446655440000`
-
----
-
-## 💬 Prompts
-
-The server provides prompt templates that guide the AI through common memory workflows.
-
-### `store_memory`
-
-Store information as a persistent memory with appropriate metadata.
-
-**Arguments:**
-- `information` (string, required) - The information to remember
-- `category` (string, optional) - Category tag (e.g., preference, fact, instruction)
-
-### `recall_memories`
-
-Search for and recall relevant memories about a topic.
-
-**Arguments:**
-- `topic` (string, required) - The topic or question to search memories for
-
-### `summarize_memories`
-
-List and summarize all recent memories for context.
-
-**Arguments:** None
-
----
-
 ## 🔒 Security
 
 This MCP server is designed with security best practices:
@@ -407,8 +337,8 @@ This MCP server is designed with security best practices:
 ### Input Validation
 - All inputs validated using Zod schemas before processing
 - UUIDs validated for format correctness
-- Entity names sanitized to prevent XSS attacks
-- String lengths enforced (e.g., entity names max 200 characters)
+- String lengths enforced (content max 50,000 characters, metadata max 10KB)
+- Memory IDs must be valid UUIDs
 
 ### Error Handling
 - Errors sanitized to prevent information leakage
@@ -474,24 +404,31 @@ npm run type-check
 ```
 mcp-server/
 ├── src/
-│   ├── index.ts          # Entry point
-│   ├── server.ts         # MCP server implementation
+│   ├── index.ts          # Entry point with CLI routing
+│   ├── server.ts         # MCP server implementation (39 tools)
 │   ├── client.ts         # MemoryRelay API client
-│   ├── config.ts         # Configuration loader
-│   ├── logger.ts         # Logging utilities
-│   └── types.ts          # TypeScript types
+│   ├── config.ts         # Configuration loader + tool groups
+│   ├── logger.ts         # Security-hardened logging
+│   ├── types.ts          # TypeScript types
+│   └── cli/
+│       ├── setup.ts      # Interactive setup wizard
+│       └── test.ts       # Connection test command
 ├── tests/
 │   ├── server.test.ts    # Server tests
 │   ├── client.test.ts    # Client tests
 │   ├── config.test.ts    # Config tests
 │   ├── security.test.ts  # Security tests
+│   ├── entity.test.ts    # Entity tests
+│   ├── e2e-protocol.test.ts # MCP protocol e2e tests
 │   └── integration.test.ts # Integration tests
 ├── docs/
-│   └── SECURITY.md       # Security documentation
+│   ├── SECURITY.md       # Security documentation
+│   └── OPENCLAW_GUIDE.md # OpenClaw setup guide
 ├── package.json
 ├── tsconfig.json
 ├── tsup.config.ts
 ├── vitest.config.ts
+├── eslint.config.js
 ├── CHANGELOG.md
 ├── LICENSE
 └── README.md
@@ -540,7 +477,7 @@ mcp-server/
 
 ### Windows: `npx` Fails with Scoped Package
 
-**Problem:** `'memoryrelay-mcp-server' is not recognized` when using `npx` on Windows
+**Problem:** `'memoryrelay-mcp' is not recognized` when using `npx` on Windows
 
 **Solutions:**
 1. Install globally instead of using `npx`:
@@ -614,7 +551,7 @@ Debug logs go to stderr and include:
 
 The project has comprehensive test coverage:
 
-- **102+ test cases** covering all functionality
+- **169 test cases** covering all functionality
 - Unit tests for each component
 - Integration tests against live API
 - Security-focused tests for API key masking and input validation
@@ -664,28 +601,19 @@ Contributions welcome! Please open an issue or pull request on [GitHub](https://
 
 ## 📝 Changelog
 
-### v0.2.0 (2026-02-15)
+### v0.2.0 (2026-03-04)
 
-- **CRITICAL FIX**: All memory API endpoints now use correct paths (store, search, list, get, update, delete all work)
-- Fix health check endpoint path
-- Config examples now use `MemoryRelay` display name for Claude Desktop
-
-### v0.1.9 (2026-02-15)
-
-- Add Windows-specific Claude Desktop setup instructions (global install + `node` command)
-- Add Windows `npx` scoped package troubleshooting guide
-- Fix project structure diagram, broken links, and missing files in README
-
-### v0.1.8 (2026-02-15)
-
-- Add MCP resources: `memory:///recent` and `memory:///{id}` for direct memory access
-- Add MCP prompts: `store_memory`, `recall_memories`, `summarize_memories` templates
-- Fix `npx @memoryrelay/mcp-server` execution for scoped packages
-- Fix server version reporting (was hardcoded as 0.1.0)
-- Implement `OPENCLAW_AGENT_NAME` environment variable support
-- Fix error help URL to point to current repository
-- Fix GitHub Release install commands to use scoped package name
-- Fix TypeScript strict mode errors
+- **39 tools** across 7 configurable tool groups (up from 9)
+- **Session tools**: `session_start`, `session_end`, `session_recall`, `session_list` — track development sessions with automatic memory linking
+- **Decision tools**: `decision_record`, `decision_list`, `decision_supersede`, `decision_check` — log architectural decisions with semantic search
+- **Pattern tools**: `pattern_create`, `pattern_search`, `pattern_adopt`, `pattern_suggest` — share and reuse conventions across projects
+- **Project tools**: `project_register`, `project_list`, `project_info`, `project_context` — manage project namespaces and load full context
+- **Relationship tools**: `project_add_relationship`, `project_dependencies`, `project_dependents`, `project_related`, `project_impact`, `project_shared_patterns` — map project dependencies and analyze impact
+- **Context tools**: `memory_promote` — manage memory importance tiers (hot/warm/cold)
+- **Tool group configuration**: `MEMORYRELAY_TOOLS` env var to selectively enable tool groups
+- **Session-aware descriptions**: Tool descriptions dynamically show active session context
+- **Server instructions**: Recommended workflow guidance via MCP protocol instructions field
+- 169 test cases with full coverage
 
 ### v0.1.0 (2026-02-12)
 
@@ -694,7 +622,7 @@ Contributions welcome! Please open an issue or pull request on [GitHub](https://
 - Semantic search with configurable thresholds
 - Entity linking for knowledge graphs
 - Security hardened with API key masking and input validation
-- 102+ test cases with full coverage
+- 102 test cases with full coverage
 - Support for OpenClaw and Claude Desktop
 
 ---

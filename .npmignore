@@ -7,7 +7,9 @@ tests/
 # Config files
 tsconfig.json
 vitest.config.ts
+vitest.integration.config.ts
 .eslintrc.*
+eslint.config.*
 .prettierrc.*
 
 # Documentation

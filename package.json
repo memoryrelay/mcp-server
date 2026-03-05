@@ -1,13 +1,12 @@
 {
   "name": "@memoryrelay/mcp-server",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "MCP server for MemoryRelay - persistent memory for AI agents",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "bin": {
-    "memoryrelay-mcp-server": "dist/index.js",
-    "mcp-server": "dist/index.js"
+    "memoryrelay-mcp": "dist/index.js"
   },
   "files": [
     "dist",
@@ -25,7 +24,8 @@
     "test:all": "npm test && npm run test:integration",
     "test:coverage": "vitest run --coverage",
     "type-check": "tsc --noEmit",
-    "lint": "echo 'Lint not configured yet'",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -59,9 +59,12 @@
     "zod": "^3.25.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^22.0.0",
+    "eslint": "^10.0.2",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
+    "typescript-eslint": "^8.56.1",
     "vitest": "^3.0.0"
   },
   "engines": {

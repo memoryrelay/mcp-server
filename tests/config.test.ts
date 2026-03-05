@@ -122,32 +122,142 @@ describe('Config Validation', () => {
       expect(agentId).toBe('test-agent');
     });
 
-    it('should generate agent ID from hostname when not configured', () => {
+    it('should generate agent ID from user and hostname when not configured', () => {
+      process.env.HOSTNAME = 'myhost';
+      process.env.USER = 'alice';
+      delete process.env.COMPUTERNAME;
+      delete process.env.USERNAME;
+
       const config = {
         apiKey: 'mem_test_1234567890abcdef',
         apiUrl: 'https://api.memoryrelay.net',
         timeout: 30000,
         logLevel: 'info' as const,
       };
-      
+
       const agentId = getAgentId(config);
-      
-      expect(agentId).toMatch(/^agent-/);
+
+      expect(agentId).toBe('alice-myhost');
     });
 
-    it('should truncate hostname to 8 characters', () => {
-      process.env.HOSTNAME = 'very-long-hostname';
-      
+    it('should fallback to mcp- prefix when no user is set', () => {
+      process.env.HOSTNAME = 'myhost';
+      delete process.env.USER;
+      delete process.env.USERNAME;
+      delete process.env.COMPUTERNAME;
+
       const config = {
         apiKey: 'mem_test_1234567890abcdef',
         apiUrl: 'https://api.memoryrelay.net',
         timeout: 30000,
         logLevel: 'info' as const,
       };
-      
+
       const agentId = getAgentId(config);
-      
-      expect(agentId).toBe('agent-very-lon');
+
+      expect(agentId).toBe('mcp-myhost');
+    });
+
+    it('should use COMPUTERNAME on Windows', () => {
+      delete process.env.HOSTNAME;
+      process.env.COMPUTERNAME = 'WIN-PC';
+      process.env.USERNAME = 'sparc';
+      delete process.env.USER;
+
+      const config = {
+        apiKey: 'mem_test_1234567890abcdef',
+        apiUrl: 'https://api.memoryrelay.net',
+        timeout: 30000,
+        logLevel: 'info' as const,
+      };
+
+      const agentId = getAgentId(config);
+
+      expect(agentId).toBe('sparc-WIN-PC');
+    });
+
+    it('should use OPENCLAW_AGENT_NAME when MEMORYRELAY_AGENT_ID is not set', () => {
+      process.env.OPENCLAW_AGENT_NAME = 'iris';
+      delete process.env.MEMORYRELAY_AGENT_ID;
+
+      const config = {
+        apiKey: 'mem_test_1234567890abcdef',
+        apiUrl: 'https://api.memoryrelay.net',
+        timeout: 30000,
+        logLevel: 'info' as const,
+      };
+
+      const agentId = getAgentId(config);
+
+      expect(agentId).toBe('iris');
+    });
+
+    it('should prefer MEMORYRELAY_AGENT_ID over OPENCLAW_AGENT_NAME', () => {
+      process.env.OPENCLAW_AGENT_NAME = 'iris';
+
+      const config = {
+        apiKey: 'mem_test_1234567890abcdef',
+        apiUrl: 'https://api.memoryrelay.net',
+        agentId: 'explicit-agent',
+        timeout: 30000,
+        logLevel: 'info' as const,
+      };
+
+      const agentId = getAgentId(config);
+
+      expect(agentId).toBe('explicit-agent');
+    });
+
+    it('should truncate OPENCLAW_AGENT_NAME to 32 characters', () => {
+      process.env.OPENCLAW_AGENT_NAME = 'a-very-long-openclaw-agent-name-that-exceeds-limit';
+      delete process.env.MEMORYRELAY_AGENT_ID;
+
+      const config = {
+        apiKey: 'mem_test_1234567890abcdef',
+        apiUrl: 'https://api.memoryrelay.net',
+        timeout: 30000,
+        logLevel: 'info' as const,
+      };
+
+      const agentId = getAgentId(config);
+
+      expect(agentId.length).toBeLessThanOrEqual(32);
+    });
+
+    it('should fall back to hostname when OPENCLAW_AGENT_NAME is empty', () => {
+      process.env.OPENCLAW_AGENT_NAME = '';
+      process.env.HOSTNAME = 'myhost';
+      process.env.USER = 'alice';
+      delete process.env.MEMORYRELAY_AGENT_ID;
+      delete process.env.COMPUTERNAME;
+      delete process.env.USERNAME;
+
+      const config = {
+        apiKey: 'mem_test_1234567890abcdef',
+        apiUrl: 'https://api.memoryrelay.net',
+        timeout: 30000,
+        logLevel: 'info' as const,
+      };
+
+      const agentId = getAgentId(config);
+
+      expect(agentId).toBe('alice-myhost');
+    });
+
+    it('should truncate to 32 characters', () => {
+      process.env.HOSTNAME = 'very-long-hostname-that-exceeds';
+      process.env.USER = 'a-very-long-username';
+
+      const config = {
+        apiKey: 'mem_test_1234567890abcdef',
+        apiUrl: 'https://api.memoryrelay.net',
+        timeout: 30000,
+        logLevel: 'info' as const,
+      };
+
+      const agentId = getAgentId(config);
+
+      expect(agentId.length).toBeLessThanOrEqual(32);
     });
   });
 });
