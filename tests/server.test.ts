@@ -7,6 +7,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { z } from 'zod';
+import { TOOL_GROUPS, getEnabledTools } from '../src/config.js';
 
 describe('Server Tool Input Validation', () => {
   describe('memory_store tool', () => {
@@ -321,6 +322,176 @@ describe('Server Tool Input Validation', () => {
 
       expect(() => schema.parse({})).not.toThrow();
       expect(() => schema.parse({ extra: 'ignored' })).not.toThrow();
+    });
+  });
+
+  describe('entity_list tool', () => {
+    it('should validate limit range (1-100)', () => {
+      const schema = z.object({
+        limit: z.number().min(1).max(100).optional(),
+        offset: z.number().min(0).optional(),
+      });
+
+      // Valid limits
+      expect(() => schema.parse({ limit: 1 })).not.toThrow();
+      expect(() => schema.parse({ limit: 100 })).not.toThrow();
+      expect(() => schema.parse({})).not.toThrow();
+
+      // Invalid limits
+      expect(() => schema.parse({ limit: 0 })).toThrow();
+      expect(() => schema.parse({ limit: 101 })).toThrow();
+    });
+
+    it('should validate offset is non-negative', () => {
+      const schema = z.object({
+        limit: z.number().min(1).max(100).optional(),
+        offset: z.number().min(0).optional(),
+      });
+
+      expect(() => schema.parse({ offset: 0 })).not.toThrow();
+      expect(() => schema.parse({ offset: 50 })).not.toThrow();
+      expect(() => schema.parse({ offset: -1 })).toThrow();
+    });
+  });
+
+  describe('agent_list tool', () => {
+    it('should validate limit range (1-100)', () => {
+      const schema = z.object({
+        limit: z.number().min(1).max(100).optional(),
+      });
+
+      expect(() => schema.parse({})).not.toThrow();
+      expect(() => schema.parse({ limit: 1 })).not.toThrow();
+      expect(() => schema.parse({ limit: 100 })).not.toThrow();
+      expect(() => schema.parse({ limit: 0 })).toThrow();
+      expect(() => schema.parse({ limit: 101 })).toThrow();
+    });
+  });
+
+  describe('agent_create tool', () => {
+    it('should require name field', () => {
+      const schema = z.object({
+        name: z.string().min(1).max(255),
+        description: z.string().max(1000).optional(),
+      });
+
+      // Valid input
+      expect(() => schema.parse({ name: 'iris' })).not.toThrow();
+      expect(() => schema.parse({ name: 'iris', description: 'AI assistant' })).not.toThrow();
+
+      // Missing name
+      expect(() => schema.parse({})).toThrow();
+      expect(() => schema.parse({ description: 'test' })).toThrow();
+    });
+
+    it('should validate name length (1-255 chars)', () => {
+      const schema = z.object({
+        name: z.string().min(1).max(255),
+        description: z.string().max(1000).optional(),
+      });
+
+      expect(() => schema.parse({ name: '' })).toThrow();
+      expect(() => schema.parse({ name: 'a'.repeat(256) })).toThrow();
+      expect(() => schema.parse({ name: 'a'.repeat(255) })).not.toThrow();
+    });
+
+    it('should validate description length (max 1000 chars)', () => {
+      const schema = z.object({
+        name: z.string().min(1).max(255),
+        description: z.string().max(1000).optional(),
+      });
+
+      expect(() => schema.parse({ name: 'test', description: 'a'.repeat(1000) })).not.toThrow();
+      expect(() => schema.parse({ name: 'test', description: 'a'.repeat(1001) })).toThrow();
+    });
+  });
+
+  describe('agent_get tool', () => {
+    it('should require UUID id field', () => {
+      const schema = z.object({
+        id: z.string().uuid(),
+      });
+
+      // Valid UUID
+      expect(() => schema.parse({
+        id: '550e8400-e29b-41d4-a716-446655440000'
+      })).not.toThrow();
+
+      // Invalid inputs
+      expect(() => schema.parse({})).toThrow();
+      expect(() => schema.parse({ id: 'not-a-uuid' })).toThrow();
+    });
+  });
+
+  // ── #188: Tool group filtering tests ──────────────────────────────
+
+  describe('Tool Group Filtering (MEMORYRELAY_TOOLS)', () => {
+    it('should define expected tool groups', () => {
+      expect(TOOL_GROUPS).toHaveProperty('core');
+      expect(TOOL_GROUPS).toHaveProperty('sessions');
+      expect(TOOL_GROUPS).toHaveProperty('decisions');
+      expect(TOOL_GROUPS).toHaveProperty('patterns');
+      expect(TOOL_GROUPS).toHaveProperty('projects');
+      expect(TOOL_GROUPS).toHaveProperty('relationships');
+      expect(TOOL_GROUPS).toHaveProperty('context');
+    });
+
+    it('should include relationship and context tools in their groups', () => {
+      expect(TOOL_GROUPS.relationships).toContain('project_add_relationship');
+      expect(TOOL_GROUPS.relationships).toContain('project_dependencies');
+      expect(TOOL_GROUPS.relationships).toContain('project_dependents');
+      expect(TOOL_GROUPS.relationships).toContain('project_related');
+      expect(TOOL_GROUPS.relationships).toContain('project_impact');
+      expect(TOOL_GROUPS.relationships).toContain('project_shared_patterns');
+      expect(TOOL_GROUPS.context).toContain('project_context');
+      expect(TOOL_GROUPS.context).toContain('memory_promote');
+    });
+
+    it('getEnabledTools should return null when MEMORYRELAY_TOOLS is unset', () => {
+      const original = process.env.MEMORYRELAY_TOOLS;
+      delete process.env.MEMORYRELAY_TOOLS;
+
+      expect(getEnabledTools()).toBeNull();
+
+      if (original !== undefined) process.env.MEMORYRELAY_TOOLS = original;
+    });
+
+    it('getEnabledTools should return null for "all"', () => {
+      const original = process.env.MEMORYRELAY_TOOLS;
+      process.env.MEMORYRELAY_TOOLS = 'all';
+
+      expect(getEnabledTools()).toBeNull();
+
+      if (original !== undefined) {
+        process.env.MEMORYRELAY_TOOLS = original;
+      } else {
+        delete process.env.MEMORYRELAY_TOOLS;
+      }
+    });
+
+    it('getEnabledTools should resolve group names to tool sets', () => {
+      const original = process.env.MEMORYRELAY_TOOLS;
+      process.env.MEMORYRELAY_TOOLS = 'core,relationships';
+
+      const enabled = getEnabledTools();
+      expect(enabled).toBeInstanceOf(Set);
+      expect(enabled).not.toBeNull();
+
+      for (const tool of TOOL_GROUPS.core) {
+        expect(enabled!.has(tool)).toBe(true);
+      }
+      for (const tool of TOOL_GROUPS.relationships) {
+        expect(enabled!.has(tool)).toBe(true);
+      }
+      for (const tool of TOOL_GROUPS.sessions) {
+        expect(enabled!.has(tool)).toBe(false);
+      }
+
+      if (original !== undefined) {
+        process.env.MEMORYRELAY_TOOLS = original;
+      } else {
+        delete process.env.MEMORYRELAY_TOOLS;
+      }
     });
   });
 

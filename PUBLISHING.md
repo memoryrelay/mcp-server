@@ -45,7 +45,7 @@
    ```
 
 4. **Create GitHub Release**:
-   - Go to: https://github.com/Alteriom/ai-memory-service/releases/new
+   - Go to: https://github.com/memoryrelay/mcp-server/releases/new
    - Tag: `mcp-v0.1.0` (select the tag you just pushed)
    - Title: `MCP Server v0.1.0`
    - Description: Release notes
@@ -253,8 +253,8 @@ npm install -g @memoryrelay/mcp-server
 
 ### 🔗 Links
 - [npm Package](https://www.npmjs.com/package/@memoryrelay/mcp-server)
-- [Documentation](https://github.com/Alteriom/ai-memory-service/tree/main/mcp#readme)
-- [Security Guide](https://github.com/Alteriom/ai-memory-service/blob/main/mcp/docs/SECURITY.md)
+- [Documentation](https://github.com/memoryrelay/mcp-server#readme)
+- [Security Guide](https://github.com/memoryrelay/mcp-server/blob/main/docs/SECURITY.md)
 ```
 
 ---
