@@ -1046,6 +1046,165 @@ export class MemoryRelayMCPServer {
             required: ['memory_id', 'importance'],
           },
         },
+        // ── V2 Async API Tools (60-600x faster) ──
+        {
+          name: 'memory_store_async',
+          description: 'Store a memory asynchronously using V2 API. Returns immediately (<50ms) with 202 Accepted and a job ID. Background workers generate the embedding. Use memory_status to poll for completion. Prefer this over memory_store for high-throughput or latency-sensitive applications.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              content: {
+                type: 'string',
+                description: 'The memory content to store. Be specific and include relevant context.',
+              },
+              metadata: {
+                type: 'object',
+                description: 'Optional key-value metadata to attach to the memory',
+                additionalProperties: { type: 'string' },
+              },
+              project: {
+                type: 'string',
+                description: 'Project slug to associate the memory with',
+                maxLength: 100,
+              },
+              importance: {
+                type: 'number',
+                description: 'Memory importance (0.0-1.0). Values >= 0.8 promote to hot tier.',
+                minimum: 0,
+                maximum: 1,
+              },
+              tier: {
+                type: 'string',
+                description: 'Memory tier override: "hot", "warm", or "cold"',
+                enum: ['hot', 'warm', 'cold'],
+              },
+              webhook_url: {
+                type: 'string',
+                description: 'Optional webhook URL to receive completion notification',
+              },
+            },
+            required: ['content'],
+          },
+        },
+        {
+          name: 'memory_status',
+          description: 'Check the processing status of a memory created via memory_store_async. Poll this endpoint to determine when embedding generation is complete. Status values: pending (waiting for worker), processing (generating embedding), ready (searchable), failed (error occurred).',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              memory_id: {
+                type: 'string',
+                description: 'Memory ID (UUID) to check status for',
+              },
+            },
+            required: ['memory_id'],
+          },
+        },
+        {
+          name: 'context_build',
+          description: 'Build a ranked context bundle from memories using V2 API with optional AI summarization. Searches for relevant memories, ranks them by composite score, and optionally generates an AI summary. Useful for building token-efficient context windows for LLM prompts. Supports custom LLM endpoints (Ollama, llama.cpp, vLLM, etc.).',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              query: {
+                type: 'string',
+                description: 'Context query describing what information is needed',
+              },
+              max_memories: {
+                type: 'number',
+                description: 'Maximum number of memories to include (1-100, default 20)',
+                minimum: 1,
+                maximum: 100,
+                default: 20,
+              },
+              max_tokens: {
+                type: 'number',
+                description: 'Token budget for context window (enforces truncation)',
+                minimum: 100,
+                maximum: 128000,
+              },
+              ai_enhanced: {
+                type: 'boolean',
+                description: 'Enable AI summarization of context (uses LLM)',
+                default: false,
+              },
+              search_mode: {
+                type: 'string',
+                description: 'Search mode: "semantic", "hybrid", or "keyword"',
+                enum: ['semantic', 'hybrid', 'keyword'],
+                default: 'hybrid',
+              },
+              llm_api_url: {
+                type: 'string',
+                description: 'Custom LLM API URL for summarization (OpenAI-compatible). Use for local LLMs: Ollama (http://localhost:11434/v1), llama.cpp, vLLM, LM Studio, etc.',
+              },
+              llm_model: {
+                type: 'string',
+                description: 'Model name for custom LLM (e.g., "mistral", "llama3", "gemma")',
+              },
+              exclude_memory_ids: {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'Memory IDs to exclude (for multi-turn context building)',
+              },
+            },
+            required: ['query'],
+          },
+        },
+        // ── Tool Name Aliases (backward compatibility with OpenClaw plugin) ──
+        {
+          name: 'memory_forget',
+          description: 'Delete a memory by ID, or search by query to find candidates. Alias for memory_delete. Provide memoryId for direct deletion, or query to search first.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              memoryId: {
+                type: 'string',
+                description: 'Memory ID to delete',
+              },
+              query: {
+                type: 'string',
+                description: 'Search query to find memory',
+              },
+            },
+          },
+        },
+        {
+          name: 'memory_recall',
+          description: 'Search memories using natural language. Alias for memory_search with default project scoping. Returns the most relevant memories based on semantic similarity.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              query: {
+                type: 'string',
+                description: 'Natural language search query',
+              },
+              limit: {
+                type: 'number',
+                description: 'Maximum results (1-50). Default 5.',
+                minimum: 1,
+                maximum: 50,
+                default: 5,
+              },
+              threshold: {
+                type: 'number',
+                description: 'Minimum similarity threshold (0-1). Default 0.3.',
+                minimum: 0,
+                maximum: 1,
+                default: 0.3,
+              },
+              project: {
+                type: 'string',
+                description: 'Filter by project slug',
+              },
+              max_tokens: {
+                type: 'number',
+                description: 'Token budget for context window',
+              },
+            },
+            required: ['query'],
+          },
+        },
       ];
 
       return {
@@ -1717,6 +1876,97 @@ export class MemoryRelayMCPServer {
             );
             return {
               content: [{ type: 'text', text: JSON.stringify(updated, null, 2) }],
+            };
+          }
+
+          // ── V2 Async API Tool Handlers ──
+
+          case 'memory_store_async': {
+            const response = await this.client.storeMemoryAsync(
+              args.content as string,
+              args.metadata as Record<string, string> | undefined,
+              args.project as string | undefined,
+              args.importance as number | undefined,
+              args.tier as string | undefined,
+              args.webhook_url as string | undefined,
+            );
+            return {
+              content: [{ type: 'text', text: JSON.stringify(response, null, 2) }],
+            };
+          }
+
+          case 'memory_status': {
+            const id = args.memory_id as string;
+            validateUuid(id, 'memory_id');
+            const status = await this.client.getMemoryStatus(id);
+            return {
+              content: [{ type: 'text', text: JSON.stringify(status, null, 2) }],
+            };
+          }
+
+          case 'context_build': {
+            const result = await this.client.buildContextV2(
+              args.query as string,
+              {
+                agentId: args.agent_id as string | null | undefined,
+                maxMemories: args.max_memories as number | undefined,
+                maxTokens: args.max_tokens as number | undefined,
+                aiEnhanced: args.ai_enhanced as boolean | undefined,
+                rankingVersion: args.ranking_version as string | undefined,
+                searchMode: args.search_mode as 'semantic' | 'hybrid' | 'keyword' | undefined,
+                llmApiUrl: args.llm_api_url as string | undefined,
+                llmModel: args.llm_model as string | undefined,
+                excludeMemoryIds: args.exclude_memory_ids as string[] | undefined,
+              }
+            );
+            return {
+              content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+            };
+          }
+
+          // ── Tool Name Aliases (backward compatibility) ──
+
+          case 'memory_forget': {
+            // Alias for memory_delete
+            const id = args.memoryId as string | undefined;
+            const query = args.query as string | undefined;
+            
+            if (id) {
+              await this.client.deleteMemory(id);
+              return {
+                content: [{ type: 'text', text: `Memory ${id.slice(0, 8)}... deleted.` }],
+              };
+            } else if (query) {
+              // Search and auto-delete if high confidence match
+              const results = await this.client.searchMemories(query, 1, 0.9);
+              if (results.length === 1) {
+                await this.client.deleteMemory(results[0].memory.id);
+                return {
+                  content: [{ type: 'text', text: `Memory ${results[0].memory.id.slice(0, 8)}... deleted (matched query).` }],
+                };
+              }
+              return {
+                content: [{ type: 'text', text: `Found ${results.length} matches. Provide memoryId to delete.` }],
+              };
+            }
+            throw new Error('memoryId or query is required');
+          }
+
+          case 'memory_recall': {
+            // Alias for memory_search with default agent_id from config
+            const results = await this.client.searchMemories(
+              args.query as string,
+              (args.limit as number) ?? 5,
+              (args.threshold as number) ?? 0.3,
+              undefined, // use default agent
+              false,
+              false,
+              false,
+              args.max_tokens as number | undefined,
+              args.project as string | undefined,
+            );
+            return {
+              content: [{ type: 'text', text: JSON.stringify({ memories: results, total: results.length }, null, 2) }],
             };
           }
 

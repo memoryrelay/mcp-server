@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **V2 Async API Support**: 60-600x faster memory storage with async embedding generation
+  - `memory_store_async`: Store memories asynchronously (<50ms response time)
+  - `memory_status`: Poll memory processing status (pending/processing/ready/failed)
+  - `context_build`: Build ranked context bundles with optional AI summarization
+- **Tool Name Aliases**: Backward compatibility with OpenClaw plugin naming
+  - `memory_forget`: Alias for `memory_delete`
+  - `memory_recall`: Alias for `memory_search`
+- **Custom LLM Support**: `context_build` supports custom LLM endpoints (Ollama, llama.cpp, vLLM, LM Studio)
+
+### Changed
+- Documentation improvements for V2 async workflow
+
 ## [0.2.0] - 2026-02-15
 
 ### Fixed
