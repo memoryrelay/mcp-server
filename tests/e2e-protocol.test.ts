@@ -283,17 +283,18 @@ describe('MCP Protocol E2E Tests', () => {
   // ── Tool Discovery ───────────────────────────────────────────────
 
   describe('ListTools', () => {
-    it('should list all 37 tools', async () => {
+    it('should list all 44 tools', async () => {
       const result = await mcpClient.listTools();
 
       expect(result.tools).toBeDefined();
-      expect(result.tools.length).toBe(39);
+      expect(result.tools.length).toBe(44);
 
       const toolNames = result.tools.map(t => t.name).sort();
       expect(toolNames).toEqual([
         'agent_create',
         'agent_get',
         'agent_list',
+        'context_build',
         'decision_check',
         'decision_list',
         'decision_record',
@@ -305,12 +306,16 @@ describe('MCP Protocol E2E Tests', () => {
         'memory_batch_store',
         'memory_context',
         'memory_delete',
+        'memory_forget',
         'memory_get',
         'memory_health',
         'memory_list',
         'memory_promote',
+        'memory_recall',
         'memory_search',
+        'memory_status',
         'memory_store',
+        'memory_store_async',
         'memory_update',
         'pattern_adopt',
         'pattern_create',

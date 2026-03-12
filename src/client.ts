@@ -846,6 +846,116 @@ export class MemoryRelayClient {
     );
   }
 
+  // ── V2 Async API (60-600x faster) ──
+
+  /**
+   * Store a memory asynchronously (V2 API).
+   * Returns immediately with 202 Accepted and a job ID.
+   * Use getMemoryStatus() to poll for completion.
+   */
+  async storeMemoryAsync(
+    content: string,
+    metadata?: Record<string, string>,
+    project?: string,
+    importance?: number,
+    tier?: string,
+    webhookUrl?: string
+  ): Promise<{ id: string; status: string; job_id: string; estimated_completion_seconds: number }> {
+    this.validateContentSize(content);
+
+    const body: Record<string, unknown> = {
+      content,
+      agent_id: this.config.agentId,
+    };
+    if (metadata) body.metadata = metadata;
+    if (project) body.project = project;
+    if (importance !== undefined) body.importance = importance;
+    if (tier) body.tier = tier;
+    if (webhookUrl) body.webhook_url = webhookUrl;
+
+    return this.request<{ id: string; status: string; job_id: string; estimated_completion_seconds: number }>(
+      'POST',
+      '/v2/memories',
+      body
+    );
+  }
+
+  /**
+   * Get memory processing status (V2 API).
+   * Use after storeMemoryAsync() to check when embedding is ready.
+   */
+  async getMemoryStatus(memoryId: string): Promise<{
+    id: string;
+    status: 'pending' | 'processing' | 'ready' | 'failed';
+    created_at: string;
+    updated_at: string;
+    error?: string;
+  }> {
+    return this.request<{
+      id: string;
+      status: 'pending' | 'processing' | 'ready' | 'failed';
+      created_at: string;
+      updated_at: string;
+      error?: string;
+    }>('GET', `/v2/memories/${memoryId}/status`);
+  }
+
+  /**
+   * Build a ranked context bundle from memories (V2 API).
+   * Supports optional AI summarization with custom LLM URL.
+   */
+  async buildContextV2(
+    query: string,
+    options?: {
+      agentId?: string | null;
+      maxMemories?: number;
+      maxTokens?: number;
+      aiEnhanced?: boolean;
+      rankingVersion?: string;
+      searchMode?: 'semantic' | 'hybrid' | 'keyword';
+      llmApiUrl?: string;
+      llmModel?: string;
+      excludeMemoryIds?: string[];
+    }
+  ): Promise<{
+    context: Array<{
+      memory_id: string;
+      content: string;
+      score: number;
+      memory_type?: string;
+    }>;
+    summary?: string;
+    token_count: number;
+    ranking_version: string;
+    ai_enhanced: boolean;
+    latency_ms: number;
+  }> {
+    const body: Record<string, unknown> = { query };
+    if (options?.agentId !== undefined) body.agent_id = options.agentId;
+    if (options?.maxMemories) body.max_memories = options.maxMemories;
+    if (options?.maxTokens) body.max_tokens = options.maxTokens;
+    if (options?.aiEnhanced) body.ai_enhanced = true;
+    if (options?.rankingVersion) body.ranking_version = options.rankingVersion;
+    if (options?.searchMode) body.search_mode = options.searchMode;
+    if (options?.llmApiUrl) body.llm_api_url = options.llmApiUrl;
+    if (options?.llmModel) body.llm_model = options.llmModel;
+    if (options?.excludeMemoryIds) body.exclude_memory_ids = options.excludeMemoryIds;
+
+    return this.request<{
+      context: Array<{
+        memory_id: string;
+        content: string;
+        score: number;
+        memory_type?: string;
+      }>;
+      summary?: string;
+      token_count: number;
+      ranking_version: string;
+      ai_enhanced: boolean;
+      latency_ms: number;
+    }>('POST', '/v2/context/build', body);
+  }
+
   /**
    * Health check - verify API connectivity
    */
