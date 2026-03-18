@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-03-17
+
 ### Added
 - **V2 Async API Support**: 60-600x faster memory storage with async embedding generation
   - `memory_store_async`: Store memories asynchronously (<50ms response time)
@@ -93,7 +95,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Input validation
 - Rate limiting support
 
-[Unreleased]: https://github.com/memoryrelay/mcp-server/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/memoryrelay/mcp-server/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/memoryrelay/mcp-server/compare/v0.2.0...v0.4.0
 [0.2.0]: https://github.com/memoryrelay/mcp-server/compare/v0.1.9...v0.2.0
 [0.1.9]: https://github.com/memoryrelay/mcp-server/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/memoryrelay/mcp-server/compare/v0.1.6...v0.1.8
