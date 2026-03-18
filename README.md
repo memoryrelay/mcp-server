@@ -17,6 +17,33 @@
 
 ---
 
+## Why MemoryRelay?
+
+| Feature | MemoryRelay | Mem0 | Basic MCP Memory |
+|---------|------------|------|-----------------|
+| Semantic Search | Yes | Yes | No |
+| Work Sessions | Yes | No | No |
+| Architectural Decisions (ADRs) | Yes | No | No |
+| Reusable Patterns | Yes | No | No |
+| Project Orchestration | Yes | No | No |
+| Knowledge Graph (Entities) | Yes | Limited | No |
+| Multi-Agent Support | Yes | Yes | No |
+| V2 Async Storage (60-600x faster) | Yes | No | No |
+| Tools | 44 | ~10 | 3-5 |
+
+MemoryRelay is purpose-built for engineering teams managing complex, long-running projects — not general-purpose Q&A memory.
+
+---
+
+## Use Cases
+
+- **Tech Lead** managing 3+ projects — track architectural decisions across repos, build pattern libraries, understand cross-project dependencies
+- **DevOps Engineer** — record infrastructure decisions with rationale, store runbooks as reusable patterns, track deployment configurations
+- **Solo Developer** — build a persistent knowledge base that grows across sessions, link related concepts through entities
+- **Coding Agent** — auto-capture important context, adopt proven patterns, maintain session continuity across conversations
+
+---
+
 ## 📦 Installation
 
 ### Using npx (recommended)
@@ -141,6 +168,7 @@ Try asking:
 | `MEMORYRELAY_TIMEOUT` | No | `30000` | Request timeout in milliseconds |
 | `MEMORYRELAY_LOG_LEVEL` | No | `info` | Logging level (`debug`, `info`, `warn`, `error`) |
 | `MEMORYRELAY_TOOLS` | No | `all` | Comma-separated tool groups to enable (see below) |
+| `OPENCLAW_AGENT_NAME` | No | - | Agent name when running under OpenClaw (used for agent ID detection) |
 
 ### Tool Groups
 
@@ -172,7 +200,7 @@ The server automatically detects your agent ID from:
 
 ## 🛠️ Available Tools
 
-The MCP server provides 39 tools organized into groups:
+The MCP server provides 44 tools organized into groups:
 
 ### Memory Management Tools
 
@@ -405,7 +433,7 @@ npm run type-check
 mcp-server/
 ├── src/
 │   ├── index.ts          # Entry point with CLI routing
-│   ├── server.ts         # MCP server implementation (39 tools)
+│   ├── server.ts         # MCP server implementation (44 tools)
 │   ├── client.ts         # MemoryRelay API client
 │   ├── config.ts         # Configuration loader + tool groups
 │   ├── logger.ts         # Security-hardened logging
