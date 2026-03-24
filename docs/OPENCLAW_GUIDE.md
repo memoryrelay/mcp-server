@@ -79,40 +79,91 @@ For most OpenClaw setups, setting `OPENCLAW_AGENT_NAME` in the config is suffici
 
 ## Available Tools
 
-The MCP server exposes 13 tools:
+The MCP server exposes 44 tools across 8 groups:
 
-### Memory Tools
+### Memory Tools (core)
 
 | Tool | Description |
 |---|---|
-| `memory_store` | Store a new memory with optional metadata and deduplication. |
+| `memory_store` | Store a new memory with optional metadata, deduplication, and entity extraction. |
 | `memory_search` | Semantic search across memories using natural language queries. |
 | `memory_list` | List recent memories chronologically with pagination. |
 | `memory_get` | Retrieve a specific memory by its UUID. |
 | `memory_update` | Update the content or metadata of an existing memory. |
 | `memory_delete` | Permanently delete a memory by its UUID. |
-
-### Entity Tools
-
-| Tool | Description |
-|---|---|
+| `memory_forget` | Alias for memory_delete (natural language convenience). |
+| `memory_recall` | Alias for memory_search (natural language convenience). |
+| `memory_batch_store` | Store multiple memories in a single request. |
+| `memory_context` | Build a context string from relevant memories. |
 | `entity_create` | Create a named entity (person, place, organization, project, concept). |
 | `entity_link` | Link an entity to a memory with a relationship label. |
 | `entity_list` | List entities in the knowledge graph with pagination. |
-
-### Agent Tools
-
-| Tool | Description |
-|---|---|
+| `entity_graph` | Get an entity's neighborhood in the knowledge graph. |
 | `agent_list` | List all agents with their memory counts. |
 | `agent_create` | Create a new named agent (memory namespace). |
 | `agent_get` | Get details of a specific agent by ID. |
+| `memory_health` | Check API connectivity and server health status. |
 
-### Health
+### V2 Async Tools (v2)
 
 | Tool | Description |
 |---|---|
-| `memory_health` | Check API connectivity and server health status. |
+| `memory_store_async` | Store a memory asynchronously (returns immediately with job ID). |
+| `memory_status` | Check processing status of an async memory. |
+| `context_build` | Build a ranked context bundle with optional AI summarization. |
+
+### Session Tools (sessions)
+
+| Tool | Description |
+|---|---|
+| `session_start` | Start a new development session. |
+| `session_end` | End an active session with optional summary. |
+| `session_recall` | Get a session by ID with its memories. |
+| `session_list` | List sessions with optional filters. |
+
+### Decision Tools (decisions)
+
+| Tool | Description |
+|---|---|
+| `decision_record` | Record an architectural decision with rationale. |
+| `decision_list` | List decisions with optional filters. |
+| `decision_supersede` | Supersede a decision with a new one. |
+| `decision_check` | Check for existing decisions about a topic. |
+
+### Pattern Tools (patterns)
+
+| Tool | Description |
+|---|---|
+| `pattern_create` | Create a reusable pattern. |
+| `pattern_search` | Search patterns using semantic search. |
+| `pattern_adopt` | Adopt a pattern for a project. |
+| `pattern_suggest` | Suggest patterns for a project. |
+
+### Project Tools (projects)
+
+| Tool | Description |
+|---|---|
+| `project_register` | Register a new project. |
+| `project_list` | List projects with pagination. |
+| `project_info` | Get project details by slug. |
+
+### Relationship Tools (relationships)
+
+| Tool | Description |
+|---|---|
+| `project_add_relationship` | Add a relationship between two projects. |
+| `project_dependencies` | Get what a project depends on. |
+| `project_dependents` | Get what depends on a project. |
+| `project_related` | Get all related projects. |
+| `project_impact` | Run impact analysis for a project change. |
+| `project_shared_patterns` | Find patterns shared between two projects. |
+
+### Context Tools (context)
+
+| Tool | Description |
+|---|---|
+| `project_context` | Get full project context (hot memories, decisions, patterns). |
+| `memory_promote` | Promote/demote a memory by updating importance and tier. |
 
 ---
 

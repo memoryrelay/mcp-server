@@ -8,10 +8,33 @@
 export interface Memory {
   id: string;
   content: string;
-  metadata?: Record<string, string>;
+  agent_id?: string;
+  user_id?: string;
+  metadata?: Record<string, unknown>;
+  entities?: EntityInfo[];
+  memory_type?: string;
+  extraction_model?: string;
+  extraction_method?: string;
+  extraction_status?: string;
+  visibility?: string;
+  salience_score?: number;
+  importance?: number;
+  tier?: string;
+  is_duplicate?: boolean;
+  session_id?: string;
+  project_id?: string;
+  archived_at?: number;
   created_at: number;
   updated_at?: number;
-  agent_id?: string;
+}
+
+/**
+ * Entity info embedded in memory responses
+ */
+export interface EntityInfo {
+  type: string;
+  value: string;
+  confidence: number;
 }
 
 /**

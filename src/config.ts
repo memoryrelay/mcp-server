@@ -29,10 +29,12 @@ export type Config = z.infer<typeof configSchema>;
 export const TOOL_GROUPS: Record<string, string[]> = {
   core: [
     'memory_store', 'memory_search', 'memory_list', 'memory_get',
-    'memory_update', 'memory_delete', 'entity_create', 'entity_link',
+    'memory_update', 'memory_delete', 'memory_forget', 'memory_recall',
+    'entity_create', 'entity_link',
     'entity_list', 'entity_graph', 'memory_batch_store', 'memory_context',
     'agent_list', 'agent_create', 'agent_get', 'memory_health',
   ],
+  v2: ['memory_store_async', 'memory_status', 'context_build'],
   sessions: ['session_start', 'session_end', 'session_recall', 'session_list'],
   decisions: ['decision_record', 'decision_list', 'decision_supersede', 'decision_check'],
   patterns: ['pattern_create', 'pattern_search', 'pattern_adopt', 'pattern_suggest'],

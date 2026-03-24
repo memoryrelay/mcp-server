@@ -198,7 +198,7 @@ All tool inputs are validated using Zod schemas:
 
 #### Memory Content
 - Type: String (required)
-- No length limit (API enforces reasonable limits)
+- 50,000 character limit (validated client-side before API call)
 - HTML-encoded when used in entity names
 
 #### Entity Names
@@ -282,8 +282,8 @@ Errors are sanitized before being returned to clients:
 The MCP server respects API rate limits:
 
 - **Timeout**: Default 30 seconds per request (configurable)
-- **Retries**: No automatic retries (MCP clients should handle retries)
-- **Backoff**: Not implemented (API returns 429 if rate limited)
+- **Retries**: Automatic retries with exponential backoff (up to 3 retries for transient errors)
+- **Backoff**: Exponential backoff with jitter on 5xx and timeout errors; 429 rate-limit responses honored via Retry-After header
 
 ### API Rate Limits
 
@@ -445,5 +445,5 @@ To enable comprehensive audit logging:
 
 ---
 
-**Last Updated:** 2026-02-12  
-**Version:** 0.1.0
+**Last Updated:** 2026-03-24
+**Version:** 0.4.0

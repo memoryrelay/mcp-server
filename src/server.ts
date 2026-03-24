@@ -54,7 +54,7 @@ export class MemoryRelayMCPServer {
     this.server = new Server(
       {
         name: '@memoryrelay/mcp-server',
-        version: '0.3.0',
+        version: '0.4.0',
       },
       {
         capabilities: {
@@ -137,6 +137,15 @@ export class MemoryRelayMCPServer {
                 type: 'string',
                 description: 'Memory tier override: "hot" (always in context), "warm" (default), "cold" (archived). Auto-computed from importance if omitted.',
                 enum: ['hot', 'warm', 'cold'],
+              },
+              session_id: {
+                type: 'string',
+                description: 'Session ID to associate the memory with. Links the memory to an active session.',
+              },
+              auto_extract_entities: {
+                type: 'boolean',
+                description: 'Automatically extract entities (people, places, orgs, etc.) from the memory content.',
+                default: false,
               },
             },
             required: ['content'],
@@ -1228,7 +1237,9 @@ export class MemoryRelayMCPServer {
               args.dedup_threshold as number | undefined,
               args.project as string | undefined,
               args.importance as number | undefined,
-              args.tier as string | undefined
+              args.tier as string | undefined,
+              args.session_id as string | undefined,
+              args.auto_extract_entities as boolean | undefined
             );
             return {
               content: [
