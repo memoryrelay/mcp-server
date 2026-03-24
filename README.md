@@ -176,7 +176,8 @@ Control which tools are exposed via the `MEMORYRELAY_TOOLS` environment variable
 
 | Group | Tools | Description |
 |-------|-------|-------------|
-| `core` | 16 tools | Memory CRUD, entities, agents, health |
+| `core` | 18 tools | Memory CRUD, entities, agents, health, aliases (forget/recall) |
+| `v2` | 3 tools | Async memory storage, status polling, context building |
 | `sessions` | 4 tools | Session lifecycle (start, end, recall, list) |
 | `decisions` | 4 tools | Decision recording and checking |
 | `patterns` | 4 tools | Pattern library (create, search, adopt, suggest) |

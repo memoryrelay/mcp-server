@@ -126,17 +126,18 @@ export class MemoryRelayClient {
             throw new Error(`Rate limited: 429 - Retry after ${waitMs}ms`);
           }
 
-          const errorData = await response.json().catch(() => ({})) as { message?: string };
+          const errorData = await response.json().catch(() => ({})) as { detail?: string };
           const errorMsg = `API request failed: ${response.status} ${response.statusText}` +
-            (errorData.message ? ` - ${errorData.message}` : '');
+            (errorData.detail ? ` - ${errorData.detail}` : '');
           
           // Mask API key in error message
           throw new Error(maskApiKey(errorMsg, this.config.apiKey));
         }
 
-        const data = await response.json();
+        const hasBody = response.status !== 204;
+        const data = hasBody ? await response.json() : null;
         this.logger.debug(`API response: ${method} ${path}`, { status: response.status });
-        
+
         return data as T;
       } catch (error) {
         if (error instanceof Error) {
@@ -172,7 +173,9 @@ export class MemoryRelayClient {
     dedupThreshold?: number,
     project?: string,
     importance?: number,
-    tier?: string
+    tier?: string,
+    sessionId?: string,
+    autoExtractEntities?: boolean
   ): Promise<Memory> {
     this.validateContentSize(content);
 
@@ -195,6 +198,12 @@ export class MemoryRelayClient {
     }
     if (tier) {
       body.tier = tier;
+    }
+    if (sessionId) {
+      body.session_id = sessionId;
+    }
+    if (autoExtractEntities !== undefined) {
+      body.auto_extract_entities = autoExtractEntities;
     }
 
     return this.request<Memory>('POST', '/v1/memories', body);
@@ -226,7 +235,7 @@ export class MemoryRelayClient {
     // If agentId is undefined, use the default from config.
     const effectiveAgentId = agentId === null ? undefined : (agentId ?? this.config.agentId);
 
-    const body: Record<string, unknown> = { query, limit, threshold };
+    const body: Record<string, unknown> = { query, limit, min_score: threshold };
     if (effectiveAgentId) {
       body.agent_id = effectiveAgentId;
     }
