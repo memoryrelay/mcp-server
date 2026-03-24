@@ -36,7 +36,7 @@ describe('MemoryRelayClient', () => {
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
-        json: async () => ({ message: `Key: mem_test_1234567890abcdef failed` }),
+        json: async () => ({ detail: `Key: mem_test_1234567890abcdef failed` }),
       } as Response);
 
       try {
