@@ -439,7 +439,7 @@ To enable comprehensive audit logging:
 ## 📚 Further Reading
 
 - [MCP Security Best Practices](https://modelcontextprotocol.io/security)
-- [MemoryRelay API Documentation](https://api.memoryrelay.net/docs)
+- [MemoryRelay API Documentation](https://docs.memoryrelay.ai/)
 - [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/)
 - [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
 
