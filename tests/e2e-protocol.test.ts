@@ -393,6 +393,8 @@ describe('MCP Protocol E2E Tests', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
+        undefined,
       );
     });
 
@@ -413,6 +415,8 @@ describe('MCP Protocol E2E Tests', () => {
         { source: 'test', priority: 'high' },
         true,
         0.9,
+        undefined,
+        undefined,
         undefined,
         undefined,
         undefined,
