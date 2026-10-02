@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-02
+
+### Security
+- Resolved the full Dependabot vulnerability backlog in the dependency tree
+  (`npm audit`: 20 → 0). Fixes were applied via lockfile refresh plus a
+  minimal `esbuild` override, since every vulnerable package is transitive
+  (only `@modelcontextprotocol/sdk` and `zod` are direct runtime deps).
+  Notable transitive bumps: `hono`, `@hono/node-server`, `fast-uri`,
+  `ip-address`, `express-rate-limit`, `rollup`, `vite`, `postcss`,
+  `nanoid`, `qs`, `ajv`, `brace-expansion`, `path-to-regexp`.
+- Upgraded `vitest` 3 → 5, clearing the `@vitest/mocker` path-traversal /
+  arbitrary-file-read advisory (GHSA-82fw-gwwq-j7x9).
+
+### Changed
+- **BREAKING**: Minimum supported Node.js is now **24** (`engines.node`:
+  `>=24.0.0`). CI runs on Node 24; the publish job uses Node 24. This
+  aligns the supported runtime with the tested runtime (vitest 5 requires
+  Node >= 22.12).
+- `esbuild` pinned to `^0.28.2` via `overrides`.
+
 ## [0.4.0] - 2026-03-17
 
 ### Added
