@@ -386,7 +386,7 @@ For detailed security information, see [SECURITY.md](./docs/SECURITY.md).
 
 ### Prerequisites
 
-- Node.js 18+ (22+ recommended)
+- Node.js 24+
 - npm or yarn
 
 ### Setup
@@ -477,7 +477,7 @@ mcp-server/
    echo $MEMORYRELAY_API_KEY
    ```
 2. Check the API key format (should start with `mem_`)
-3. Ensure Node.js version is 18+ (`node --version`)
+3. Ensure Node.js version is 24+ (`node --version`)
 4. Try running with debug logging:
    ```json
    {
