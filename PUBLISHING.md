@@ -1,273 +1,100 @@
-# MCP Server Publishing Quick Reference
+# MCP Server Publishing Guide
 
-## 🚀 Publishing Checklist
+This package (`@memoryrelay/mcp-server`) is published to npm by the
+`.github/workflows/ci-cd.yml` workflow when a **`v*` git tag** is pushed.
 
-### Pre-Publishing Setup (One-Time)
+## Prerequisites (one-time)
 
-1. **Configure GitHub Secrets** (Settings → Secrets and variables → Actions)
-   ```
-   NPM_TOKEN=npm_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-   ```
-   
-   Optional for integration tests:
-   ```
-   MEMORYRELAY_TEST_API_KEY=mem_test_xxxxx
-   MEMORYRELAY_TEST_API_URL=https://api.memoryrelay.net
-   ```
-
-2. **Verify npm Account**
-   - Organization: `@memoryrelay`
-   - Package name available: `@memoryrelay/mcp-server`
-   - Account has publish rights
-
-### Publishing a Release
-
-#### Method 1: GitHub Release (Recommended)
-
-1. **Update version** in `mcp/package.json`:
-   ```json
-   {
-     "version": "0.1.0"  // Change this
-   }
-   ```
-
-2. **Commit and push**:
+1. **`NPM_TOKEN` GitHub secret** (Settings → Secrets and variables → Actions).
+   It must be a token for an npm account that is an **owner** of
+   `@memoryrelay/mcp-server` (currently `sparck75`), with **write/publish**
+   access — an Automation token, or a Granular token granting read+write to
+   this package. A token for any other account fails `npm publish` with a
+   misleading `E404` (npm returns 404, not 403, for scoped packages the token
+   cannot write). Verify with:
    ```bash
-   git add mcp/package.json
-   git commit -m "Bump version to 0.1.0"
-   git push
+   npm whoami                                   # must be an owner
+   npm owner ls @memoryrelay/mcp-server          # lists owners
    ```
 
-3. **Create and push tag**:
-   ```bash
-   git tag mcp-v0.1.0
-   git push origin mcp-v0.1.0
-   ```
+2. **Node.js 24+** — the toolchain (vitest 5) and `engines.node` require
+   Node >= 24.
 
-4. **Create GitHub Release**:
-   - Go to: https://github.com/memoryrelay/mcp-server/releases/new
-   - Tag: `mcp-v0.1.0` (select the tag you just pushed)
-   - Title: `MCP Server v0.1.0`
-   - Description: Release notes
-   - Click "Publish release"
+## Releasing
 
-5. **Workflow runs automatically**:
-   - CI tests run
-   - Package is built
-   - Published to npm
-   - Package is verified
-   - Tarball attached to release
-
-#### Method 2: Manual Workflow (For Testing)
-
-1. Go to: Actions → Publish MCP Server → Run workflow
-2. Set parameters:
-   - `tag`: `mcp-v0.1.0`
-   - `dry_run`: `true` (for testing) or `false` (for real publish)
-3. Click "Run workflow"
-
-### Version Numbering
-
-**Format:** `mcp-vX.Y.Z[-suffix]`
-
-- `mcp-v0.1.0` - Stable release
-- `mcp-v0.1.0-beta` - Beta release
-- `mcp-v0.2.0-alpha.1` - Alpha release
-
-**Semantic Versioning:**
-- Major (`X`): Breaking changes
-- Minor (`Y`): New features (backward compatible)
-- Patch (`Z`): Bug fixes
-
-### Post-Publishing
-
-1. **Verify on npm**:
-   ```bash
-   npm view @memoryrelay/mcp-server
-   ```
-
-2. **Test installation**:
-   ```bash
-   npx @memoryrelay/mcp-server --help
-   ```
-
-3. **Update documentation** if needed:
-   - Update version references in README.md
-   - Update changelog
-
----
-
-## 🧪 Testing Before Publishing
-
-### Local Testing
+Use the helper script from a clean `main`:
 
 ```bash
-cd mcp
-
-# Build
-npm run build
-
-# Run all tests
-npm test
-
-# Package validation
-npm pack --dry-run
-
-# Test package contents
-npm pack
-npm install -g ./memoryrelay-mcp-server-0.1.0.tgz
-memoryrelay-mcp --help
-npm uninstall -g @memoryrelay/mcp-server
+./release.sh [patch|minor|major]   # default: patch
 ```
 
-### CI/CD Testing
+It bumps the version (no git tag yet), prompts you to update `CHANGELOG.md`,
+commits `chore: Release vX.Y.Z`, creates an annotated `vX.Y.Z` tag, and pushes
+`main` + the tag.
 
-Push to a branch and open a PR:
+Or do it manually:
+
 ```bash
-git checkout -b test-publish
-# Make changes
-git commit -am "Test changes"
-git push origin test-publish
+npm version <patch|minor|major> --no-git-tag-version
+# edit CHANGELOG.md
+git add package.json package-lock.json CHANGELOG.md
+git commit -m "chore: release vX.Y.Z"
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
+git push origin main vX.Y.Z
 ```
 
-CI will run automatically on PRs.
+> If a `CLAUDE.md`/branch-protection rule forbids pushing to `main` directly,
+> land the version bump via a PR first, then tag the merge commit on `main`
+> and push only the tag.
 
-### Dry-Run Publishing
+## What the tag push triggers (`ci-cd.yml`)
 
-Use manual workflow with `dry_run: true` to simulate publishing without actually publishing.
+1. **test** job — `npm ci`, lint, `npm test`, build on Node 24.
+2. **publish** job (only on `refs/tags/v*`):
+   - build,
+   - verify the tag version matches `package.json`,
+   - `npm publish --access public` using `NPM_TOKEN`,
+   - create the GitHub Release.
 
----
+## Verifying a release
 
-## 🔧 CI/CD Workflows
-
-### mcp-ci.yml (Continuous Integration)
-
-**Triggers:**
-- Push to `main` or `develop` (with `mcp/**` changes)
-- Pull requests (with `mcp/**` changes)
-
-**Jobs:**
-- Test on Node 18, 20, 22
-- Security audit
-- Package validation
-- Lint/type checking
-
-### mcp-publish.yml (Publishing)
-
-**Triggers:**
-- GitHub release published (tag: `mcp-v*`)
-- Manual workflow dispatch
-
-**Jobs:**
-- Validate tag format
-- Verify version matches tag
-- Run tests
-- Build
-- Publish to npm
-- Verify published package
-- Create summary
-
----
-
-## 📋 Troubleshooting
-
-### Publishing Fails: Version Mismatch
-
-**Error:** `package.json version doesn't match tag version`
-
-**Fix:**
-1. Update `mcp/package.json` version
-2. Commit and push
-3. Delete and recreate tag:
-   ```bash
-   git tag -d mcp-v0.1.0
-   git push origin :refs/tags/mcp-v0.1.0
-   git tag mcp-v0.1.0
-   git push origin mcp-v0.1.0
-   ```
-
-### Publishing Fails: NPM_TOKEN Invalid
-
-**Error:** `401 Unauthorized`
-
-**Fix:**
-1. Generate new npm token: https://www.npmjs.com/settings/tokens
-2. Update GitHub secret: `NPM_TOKEN`
-3. Re-run workflow
-
-### CI Tests Fail
-
-**Check:**
-1. View workflow logs: Actions → MCP Server CI → Failed run
-2. Common issues:
-   - Outdated dependencies: `npm update` in `mcp/`
-   - Type errors: `npm run type-check` in `mcp/`
-   - Test failures: `npm test` in `mcp/`
-
-### Package Contents Wrong
-
-**Check:**
 ```bash
-cd mcp
-npm pack --dry-run
+# Authoritative (bypasses npm-view/CDN lag, which can trail a publish ~1 min):
+curl -s https://registry.npmjs.org/@memoryrelay%2Fmcp-server | \
+  jq '{latest:.["dist-tags"].latest, has:(.versions["X.Y.Z"]!=null)}'
+
+npm view @memoryrelay/mcp-server version   # once CDN catches up
+npx -y @memoryrelay/mcp-server --help
 ```
 
-**Fix:** Update `files` array in `package.json`:
-```json
-{
-  "files": [
-    "dist",
-    "README.md",
-    "docs"
-  ]
-}
+The npm publish step prints `+ @memoryrelay/mcp-server@X.Y.Z` on success —
+that, and the registry JSON above, are authoritative; `npm view` may lag.
+
+## Troubleshooting
+
+### `npm publish` fails with `E404 ... PUT .../@memoryrelay%2fmcp-server`
+The `NPM_TOKEN` account lacks write access to the package (expired token,
+read-only/granular token without this package, or an account that is not an
+owner). Fix the secret (see Prerequisites), then **re-run only the failed
+job** against the existing tag — no need to retag:
+```bash
+gh run rerun <run-id> --failed
 ```
 
----
-
-## 📝 Release Notes Template
-
-```markdown
-## 🎉 MemoryRelay MCP Server v0.1.0
-
-### ✨ New Features
-- Feature 1
-- Feature 2
-
-### 🐛 Bug Fixes
-- Fix 1
-- Fix 2
-
-### 📚 Documentation
-- Documentation improvement 1
-
-### 🔧 Internal
-- Internal change 1
-
-### 📦 Installation
-\`\`\`bash
-npx @memoryrelay/mcp-server
-# or
-npm install -g @memoryrelay/mcp-server
-\`\`\`
-
-### 🔗 Links
-- [npm Package](https://www.npmjs.com/package/@memoryrelay/mcp-server)
-- [Documentation](https://github.com/memoryrelay/mcp-server#readme)
-- [Security Guide](https://github.com/memoryrelay/mcp-server/blob/main/docs/SECURITY.md)
+### Version mismatch
+The publish job fails if the `vX.Y.Z` tag doesn't match `package.json`.
+Bump `package.json`, commit, delete and recreate the tag:
+```bash
+git tag -d vX.Y.Z && git push origin :refs/tags/vX.Y.Z
+git tag -a vX.Y.Z -m "Release vX.Y.Z" && git push origin vX.Y.Z
 ```
 
----
+### Package contents wrong
+Check with `npm pack --dry-run`; adjust the `files` array in `package.json`
+(currently `dist`, `README.md`, `docs`).
 
-## 🔐 Security
+## Security
 
-- Always use GitHub secrets for `NPM_TOKEN`
-- Never commit `.npmrc` with actual tokens
-- Rotate npm tokens regularly (every 90 days)
-- Enable 2FA on npm account
-- Review publish workflow before merging changes
-
----
-
-**Last Updated:** 2026-02-12  
-**Current Version:** 0.1.0
+- Keep `NPM_TOKEN` in GitHub secrets only; never commit a token or `.npmrc`.
+- Prefer a short-lived Automation/Granular token and rotate it regularly.
+- Enable 2FA on the npm account (Automation tokens publish under 2FA).
