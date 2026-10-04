@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Retired publishing from this repository. `@memoryrelay/mcp-server` is
+  published from `memoryrelay/api` (`mcp/`, release tags `mcp-v*`) from 0.6.0
+  onward. The `v*` tag trigger and the publish job are gone from `ci-cd.yml`,
+  `package.json` is `private`, and `release.sh` points at the new process.
+
 ## [0.5.0] - 2026-10-02
 
 ### Security

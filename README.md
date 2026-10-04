@@ -1,5 +1,10 @@
 # @memoryrelay/mcp-server
 
+> **This repository is superseded.** The MCP server now lives in
+> [`memoryrelay/api`](https://github.com/memoryrelay/api/tree/main/mcp), which
+> publishes `@memoryrelay/mcp-server` from 0.6.0 onward. This copy stops at 0.5.0
+> and no longer publishes; open issues and pull requests there.
+
 **MCP server for MemoryRelay** - Give your AI agents persistent memory across sessions.
 
 [![CI/CD](https://github.com/memoryrelay/mcp-server/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/memoryrelay/mcp-server/actions)
